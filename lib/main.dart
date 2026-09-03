@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sansom/provider/auth/auth_provider.dart';
+import 'package:sansom/provider/budget/budget_category_provider.dart';
 import 'package:sansom/provider/budget/budget_provider.dart';
+import 'package:sansom/provider/category/category_provider.dart';
 import 'package:sansom/view/auth/login.dart';
 import 'package:sansom/widget/custom_bottom_nav.dart';
 
@@ -15,6 +17,14 @@ void main() {
 
         ChangeNotifierProvider(
           create: (_) => BudgetProvider(),
+        ),
+
+        ChangeNotifierProvider(
+          create: (_) => CategoryProvider(),
+        ),
+
+        ChangeNotifierProvider(
+          create: (_) => BudgetCategoryProvider(),
         ),
       ],
       child: const MyApp(),

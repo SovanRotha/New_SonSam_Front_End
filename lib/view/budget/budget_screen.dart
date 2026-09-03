@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sansom/provider/budget/budget_provider.dart';
+import 'package:sansom/view/budget/budget_detail_screen.dart';
+import 'package:sansom/view/category/category_screen.dart';
 import 'package:sansom/widget/budget/create_budget.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -66,47 +68,75 @@ class _BudgetScreenState extends State<BudgetScreen> {
         final budget = budgetProvider.budgets[index];
 
         return Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  budget.name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+  margin: const EdgeInsets.only(bottom: 16),
+  child: InkWell(
+    borderRadius: BorderRadius.circular(12),
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BudgetDetailScreen(
+            // budgetId: budget.id, =====================//
 
-                const SizedBox(height: 10),
-
-                Text('Month: ${budget.month}'),
-
-                const SizedBox(height: 10),
-
-                Text('Total Limit: \$${budget.totalLimit}'),
-
-                const SizedBox(height: 10),
-
-                Text('Rollover: ${budget.rollover}'),
-
-                const SizedBox(height: 10),
-
-                Text('Rollover Amount: \$${budget.rolloverAmount}'),
-
-                const SizedBox(height: 10),
-
-                Text('Status: ${budget.status}'),
-
-                IconButton(onPressed: (){
-                  context.read<BudgetProvider>().deleteBudget(budget.id);
-                }, icon: Icon(Icons.delete, color: Colors.red,))
-              ],
+            //===================================//
+          ),
+        ),
+      );
+    },
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            budget.name,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        );
+
+          const SizedBox(height: 10),
+
+          Text('Month: ${budget.month}'),
+
+          const SizedBox(height: 10),
+
+          Text('Total Limit: \$${budget.totalLimit}'),
+
+          const SizedBox(height: 10),
+
+          Text('Rollover: ${budget.rollover}'),
+
+          const SizedBox(height: 10),
+
+          Text(
+            'Rollover Amount: \$${budget.rolloverAmount}',
+          ),
+
+          const SizedBox(height: 10),
+
+          Text('Status: ${budget.status}'),
+
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              onPressed: () {
+                context
+                    .read<BudgetProvider>()
+                    .deleteBudget(budget.id);
+              },
+              icon: const Icon(
+                Icons.delete,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+);
       },
     );
   }

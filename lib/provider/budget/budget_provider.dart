@@ -44,9 +44,9 @@ class BudgetProvider extends ChangeNotifier {
       final response = await budgetService.createBudget(budgetData);
 
       // Depending on your create API response
-      if (response['budget'] != null) {
+      if (response['budgets'] != null) {
         budgets.add(
-          Budget.fromJson(response['budget']),
+          Budget.fromJson(response['budgets']),
         );
       }
 
