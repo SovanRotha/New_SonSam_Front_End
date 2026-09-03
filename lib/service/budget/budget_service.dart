@@ -69,15 +69,15 @@ class BudgetService {
   }
 
   Future<void> deleteBudget(int id) async {
-    final response = await http.delete(
-      Uri.parse('${ApiUrl.baseUrl}/budgets/$id'),
-      headers: await getHeaders(),
-    );
+  final response = await http.delete(
+    Uri.parse('${ApiUrl.baseUrl}/budgets/$id'),
+    headers: await getHeaders(),
+  );
 
-    if (response.statusCode != 204) {
-      throw Exception(
-        'Failed to delete budget: ${response.body}',
-      );
-    }
+  if (response.statusCode != 200 && response.statusCode != 204) {
+    throw Exception(
+      'Failed to delete budget: ${response.body}',
+    );
   }
+}
 }

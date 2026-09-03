@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:sansom/models/budget/budget_model.dart';
 import 'package:sansom/service/budget/budget_service.dart';
@@ -6,12 +5,12 @@ import 'package:sansom/service/budget/budget_service.dart';
 class BudgetProvider extends ChangeNotifier {
   final BudgetService budgetService = BudgetService();
 
-  Budget? budget;
+  List<Budget> budgets = [];
 
   bool isLoading = false;
   String? errorMessage;
 
-  // Get budget
+  // Get budgets
   Future<void> getBudget() async {
     isLoading = true;
     errorMessage = null;
@@ -20,7 +19,11 @@ class BudgetProvider extends ChangeNotifier {
     try {
       final response = await budgetService.getBudget();
 
-      budget = Budget.fromJson(response);
+      final List<dynamic> budgetData = response['budgets'];
+
+      budgets = budgetData
+          .map((json) => Budget.fromJson(json))
+          .toList();
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -38,42 +41,14 @@ class BudgetProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await budgetService.createBudget(
-        budgetData,
-      );
+      final response = await budgetService.createBudget(budgetData);
 
-      budget = Budget.fromJson(response);
-
-      isLoading = false;
-      notifyListeners();
-
-      return true;
-    } catch (e) {
-      errorMessage = e.toString();
-
-      isLoading = false;
-      notifyListeners();
-
-      return false;
-    }
-  }
-
-  // Update budget
-  Future<bool> updateBudget(
-    int id,
-    Map<String, dynamic> budgetData,
-  ) async {
-    isLoading = true;
-    errorMessage = null;
-    notifyListeners();
-
-    try {
-      final response = await budgetService.updateBudget(
-        id,
-        budgetData,
-      );
-
-      budget = Budget.fromJson(response);
+      // Depending on your create API response
+      if (response['budget'] != null) {
+        budgets.add(
+          Budget.fromJson(response['budget']),
+        );
+      }
 
       isLoading = false;
       notifyListeners();
@@ -98,7 +73,7 @@ class BudgetProvider extends ChangeNotifier {
     try {
       await budgetService.deleteBudget(id);
 
-      budget = null;
+      budgets.removeWhere((budget) => budget.id == id);
 
       isLoading = false;
       notifyListeners();
@@ -114,4 +89,3 @@ class BudgetProvider extends ChangeNotifier {
     }
   }
 }
-

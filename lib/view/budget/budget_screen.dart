@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sansom/provider/budget/budget_provider.dart';
+import 'package:sansom/widget/budget/create_budget.dart';
 
 class BudgetScreen extends StatefulWidget {
   const BudgetScreen({super.key});
@@ -28,56 +28,86 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Budget Screen'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(context: context, builder: ((context) => CreateBudget()));
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ],
       ),
+
       body: _buildBody(budgetProvider),
     );
   }
 
   Widget _buildBody(BudgetProvider budgetProvider) {
+    // Loading
     if (budgetProvider.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
+    // Error
     if (budgetProvider.errorMessage != null) {
-      return Center(
-        child: Text(budgetProvider.errorMessage!),
-      );
+      return Center(child: Text(budgetProvider.errorMessage!));
     }
 
-    if (budgetProvider.budget == null) {
-      return const Center(
-        child: Text('No budget found'),
-      );
+    // No budgets
+    if (budgetProvider.budgets.isEmpty) {
+      return const Center(child: Text('No budget found'));
     }
 
-    final budget = budgetProvider.budget!;
-
-    return Padding(
+    // Display all budgets
+    return ListView.builder(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Name: ${budget.name}',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+      itemCount: budgetProvider.budgets.length,
+      itemBuilder: (context, index) {
+        final budget = budgetProvider.budgets[index];
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  budget.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text('Month: ${budget.month}'),
+
+                const SizedBox(height: 10),
+
+                Text('Total Limit: \$${budget.totalLimit}'),
+
+                const SizedBox(height: 10),
+
+                Text('Rollover: ${budget.rollover}'),
+
+                const SizedBox(height: 10),
+
+                Text('Rollover Amount: \$${budget.rolloverAmount}'),
+
+                const SizedBox(height: 10),
+
+                Text('Status: ${budget.status}'),
+
+                IconButton(onPressed: (){
+                  context.read<BudgetProvider>().deleteBudget(budget.id);
+                }, icon: Icon(Icons.delete, color: Colors.red,))
+              ],
             ),
           ),
-          const SizedBox(height: 10),
-          Text('Month: ${budget.month}'),
-          const SizedBox(height: 10),
-          Text('Total Limit: \$${budget.totalLimit}'),
-          const SizedBox(height: 10),
-          Text('Rollover: ${budget.rollover}'),
-          const SizedBox(height: 10),
-          Text('Rollover Amount: \$${budget.rolloverAmount}'),
-          const SizedBox(height: 10),
-          Text('Status: ${budget.status}'),
-        ],
-      ),
+        );
+      },
     );
   }
 }
