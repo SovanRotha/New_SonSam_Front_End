@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -7,7 +6,6 @@ import 'package:sansom/models/category/category_model.dart';
 import 'package:sansom/service/token/token_storage.dart';
 
 class CategoryService {
-  
   Future<Map<String, String>> getHeaders() async {
     return {
       'Content-Type': 'application/json',
@@ -17,8 +15,10 @@ class CategoryService {
   }
 
   Future<Map<String, dynamic>> getCategory() async {
-    final response = await http.get(Uri.parse('${ApiUrl.baseUrl}/categories'), 
-    headers: await getHeaders());
+    final response = await http.get(
+      Uri.parse('${ApiUrl.baseUrl}/categories'),
+      headers: await getHeaders(),
+    );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -27,22 +27,36 @@ class CategoryService {
     }
   }
 
-  Future<Map<String, dynamic>> createCategory(Map<String, dynamic> categoryData) async {
-    final response = await http.post(Uri.parse('${ApiUrl.baseUrl}/categories'), 
-    headers: await getHeaders(),
-    body: jsonEncode(categoryData));
+  Future<Map<String, dynamic>> createCategory(
+    Map<String, dynamic> categoryData,
+  ) async {
+    final response = await http.post(
+      Uri.parse('${ApiUrl.baseUrl}/categories'),
+      headers: await getHeaders(),
+      body: jsonEncode(categoryData),
+    );
+
+    print('STATUS: ${response.statusCode}');
+    print('BODY: ${response.body}');
 
     if (response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to create category');
+      throw Exception(
+        'Failed to create category: ${response.statusCode} ${response.body}',
+      );
     }
   }
 
-  Future<Map<String, dynamic>> updateCategory(int id, Map<String, dynamic> categoryData) async {
-    final response = await http.put(Uri.parse('${ApiUrl.baseUrl}/categories/$id'), 
-    headers: await getHeaders(),
-    body: jsonEncode(categoryData));
+  Future<Map<String, dynamic>> updateCategory(
+    int id,
+    Map<String, dynamic> categoryData,
+  ) async {
+    final response = await http.put(
+      Uri.parse('${ApiUrl.baseUrl}/categories/$id'),
+      headers: await getHeaders(),
+      body: jsonEncode(categoryData),
+    );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -52,11 +66,19 @@ class CategoryService {
   }
 
   Future<void> deleteCategory(int id) async {
-    final response = await http.delete(Uri.parse('${ApiUrl.baseUrl}/categories/$id'), 
-    headers: await getHeaders());
+    final response = await http.delete(
+      Uri.parse('${ApiUrl.baseUrl}/categories/$id'),
+      headers: await getHeaders(),
+    );
+
+    print('DELETE STATUS: ${response.statusCode}');
+    print('DELETE BODY: ${response.body}');
 
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete category');
+      throw Exception(
+        'Failed to delete category: '
+        '${response.statusCode} ${response.body}',
+      );
     }
   }
 }

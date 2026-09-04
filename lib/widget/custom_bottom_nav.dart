@@ -17,7 +17,7 @@ class CustomBottomNav extends StatefulWidget {
 class _CustomBottomNavState extends State<CustomBottomNav> {
   int selectedIndex = 0;
 
-  final List<Widget> screens = const [
+  final List<Widget> screens =  [
     HomeScreen(),
     HistoryScreen(),
     BudgetScreen(),

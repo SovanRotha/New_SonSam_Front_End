@@ -13,25 +13,25 @@ class BudgetCategoryService {
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer $token}', // Replace with actual token retrieval
+      'Authorization': 'Bearer $token', // Replace with actual token retrieval
       // Add other headers as needed
     };
   }
 
-  Future<Map<String, dynamic>> getBudgetCategories(int id) async {
-    final response = await http.get(
-      Uri.parse('${ApiUrl.baseUrl}/budgetCategories/$id'),
-      headers: await getHeaders(),
-    );
+  Future<Map<String, dynamic>> getBudgetCategories(int budgetId) async {
+  final response = await http.get(
+    Uri.parse('${ApiUrl.baseUrl}/budgetCategories/$budgetId'),
+    headers: await getHeaders(),
+  );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    }
-
-    throw Exception(
-      'Failed to load budget categories: ${response.body}',
-    );
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
   }
+
+  throw Exception(
+    'Failed to load budget categories: ${response.body}',
+  );
+}
 
   Future<Map<String, dynamic>> createBudgetCategory(
     Map<String, dynamic> budgetCategoryData,
