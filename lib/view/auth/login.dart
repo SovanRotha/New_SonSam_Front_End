@@ -35,8 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final success = await provider.login(
           emailController.text.trim(),
           passwordController.text,
-        ) ??
-        false;
+        ) ??false;
 
     setState(() => _isLoading = false);
 
