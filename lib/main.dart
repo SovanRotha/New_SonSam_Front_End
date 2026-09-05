@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sansom/provider/ai/ai_provider.dart';
 import 'package:sansom/provider/auth/auth_provider.dart';
 import 'package:sansom/provider/budget/budget_category_provider.dart';
 import 'package:sansom/provider/budget/budget_provider.dart';
@@ -26,6 +27,10 @@ void main() {
         ChangeNotifierProvider(
           create: (_) => BudgetCategoryProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => AIProvider(),
+        ),
+
       ],
       child: const MyApp(),
     ),
