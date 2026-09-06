@@ -5,6 +5,13 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Transaction History'),
+      ),
+      body: const Center(
+        child: Text('Transaction history will be displayed here.'),
+      ),
+    );
   }
 }
