@@ -16,11 +16,17 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
 
-        ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ChangeNotifierProvider(
+          create: (_) => BudgetProvider(),
+        ),
 
-        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(
+          create: (_) => CategoryProvider(),
+        ),
 
         ChangeNotifierProvider(
           create: (_) => BudgetCategoryProvider(),
@@ -34,18 +40,23 @@ void main() {
        
 
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
-        ChangeNotifierProvider(create: (_) => RecurringTransactionProvider())
+        ChangeNotifierProvider(create: (_) => RecurringTransactionProvider()),
+    
       ],
       child: const MyApp(),
     ),
   );
 }
 
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: LoginScreen());
+    
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LoginScreen());
   }
 }

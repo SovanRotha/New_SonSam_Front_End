@@ -1,3 +1,7 @@
+import 'package:sansom/models/account/account_model.dart';
+import 'package:sansom/models/account/account_type_model.dart';
+import 'package:sansom/models/category/category_model.dart';
+
 class TransactionModel {
   final int id;
   final int userId;
@@ -9,6 +13,10 @@ class TransactionModel {
   final String transactionDate;
   final String status;
 
+  AccountTypeModel? accountType; // Optional: Include account details if needed
+  Category? category; // Optional: Include category details if needed
+  AccountModel? account; // Optional: Include account type details if needed
+
   TransactionModel({
     required this.id,
     required this.userId,
@@ -19,6 +27,11 @@ class TransactionModel {
     this.description,
     required this.transactionDate,
     required this.status,
+
+    this.accountType,
+    this.category,
+    this.account,
+    
   });
 
   // Convert JSON response from Laravel API into a Dart object
@@ -34,6 +47,16 @@ class TransactionModel {
       description: json['description']?.toString(),
       transactionDate: json['transaction_date']?.toString() ?? '',
       status: json['status']?.toString() ?? 'completed',
+      accountType: json['account_type'] != null
+          ? AccountTypeModel.fromJson(json['account_type'])
+          : null,
+      category: json['category'] != null
+          ? Category.fromJson(json['category'])
+          : null,
+      account: json['account'] != null
+          ? AccountModel.fromJson(json['account'])
+          : null,
+
     );
   }
 
@@ -48,6 +71,9 @@ class TransactionModel {
       'description': description,
       'transaction_date': transactionDate,
       'status': status,
+      if (accountType != null) 'account_type': accountType!.toJson(),
+      if (category != null) 'category': category!.toJson(),
+      if (account != null) 'account': account!.toJson(),
     };
   }
 }
