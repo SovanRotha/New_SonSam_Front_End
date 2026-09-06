@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sansom/provider/budget/budget_provider.dart';
 import 'package:sansom/view/budget/budget_detail_screen.dart';
+import 'package:sansom/view/budget/transaction_attachment_test_screen.dart';
 import 'package:sansom/widget/budget/create_budget.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -29,26 +30,43 @@ class _BudgetScreenState extends State<BudgetScreen> {
     final budgetProvider = context.watch<BudgetProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Budgets',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+     appBar: AppBar(
+  title: const Text(
+    'Budgets',
+    style: TextStyle(
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+
+  actions: [
+    // Attachment test
+    IconButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+              const TransactionAttachmentTestScreen(),
           ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => const CreateBudget(),
-              );
-            },
-            icon: const Icon(Icons.add),
-            tooltip: 'Add Budget',
-          ),
-        ],
-      ),
+        );
+      },
+      icon: const Icon(Icons.attach_file),
+      tooltip: 'Test Attachments',
+    ),
+
+    // Create budget
+    IconButton(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) => const CreateBudget(),
+        );
+      },
+      icon: const Icon(Icons.add),
+      tooltip: 'Add Budget',
+    ),
+  ],
+),
       body: _buildBody(budgetProvider),
     );
   }

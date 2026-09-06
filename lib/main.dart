@@ -8,6 +8,7 @@ import 'package:sansom/provider/bill/recurring_transaction_provider.dart';
 import 'package:sansom/provider/budget/budget_category_provider.dart';
 import 'package:sansom/provider/budget/budget_provider.dart';
 import 'package:sansom/provider/category/category_provider.dart';
+import 'package:sansom/provider/category/transaction_attachment_provider.dart';
 import 'package:sansom/provider/transaction/transaction_provider.dart';
 import 'package:sansom/view/auth/login.dart';
 
@@ -34,7 +35,8 @@ void main() {
        
 
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
-        ChangeNotifierProvider(create: (_) => RecurringTransactionProvider())
+        ChangeNotifierProvider(create: (_) => RecurringTransactionProvider()),
+        ChangeNotifierProvider(create: (_) => TransactionAttachmentProvider())
       ],
       child: const MyApp(),
     ),
