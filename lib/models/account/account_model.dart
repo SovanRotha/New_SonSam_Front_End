@@ -1,4 +1,4 @@
-class Account {
+class AccountModel {
   final int id;
   final int userId;
   final int accountTypeId;
@@ -9,7 +9,7 @@ class Account {
   final String? color;
   final String status;
 
-  Account({
+  AccountModel({
     required this.id,
     required this.userId,
     required this.accountTypeId,
@@ -21,8 +21,8 @@ class Account {
     required this.status,
   });
 
-  factory Account.fromJson(Map<String, dynamic> json) {
-    return Account(
+  factory AccountModel.fromJson(Map<String, dynamic> json) {
+    return AccountModel(
       id: json['id'],
       userId: json['user_id'],
       accountTypeId: json['account_type_id'],
