@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:sansom/core/constant/api_url.dart';
 
 import 'package:sansom/models/transaction/transaction_model.dart';
 
@@ -17,7 +18,7 @@ class TransactionService {
 
   // Fetch list of transactions
   Future<List<TransactionModel>> fetchTransactions(String token) async {
-    final Uri url = Uri.parse('${ApiConfig.baseUrl}/transactions');
+    final Uri url = Uri.parse('${ApiUrl.baseUrl}/transactions');
     final Map<String, String> headers = _getHeaders(token);
 
     print('--> GET $url');
@@ -74,7 +75,7 @@ class TransactionService {
     String token,
     TransactionModel transaction,
   ) async {
-    final Uri url = Uri.parse('${ApiConfig.baseUrl}/transactions');
+    final Uri url = Uri.parse('${ApiUrl.baseUrl}/transactions');
     final Map<String, String> headers = _getHeaders(token);
     final String body = jsonEncode(transaction.toJson());
 
