@@ -11,7 +11,6 @@ class AuthProvider extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
   Map<String, dynamic>? user;
-  
 
   Future<bool> login(String email, String password) async {
     isLoading = true;
@@ -23,9 +22,9 @@ class AuthProvider extends ChangeNotifier {
 
       user = response['user'];
       TokenStorage.saveToken(response['token']);
-      
+
       log('${response['token']}');
-      
+
       isLoading = false;
       notifyListeners();
 

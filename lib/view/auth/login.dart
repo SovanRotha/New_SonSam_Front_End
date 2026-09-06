@@ -31,8 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> login() async {
     setState(() => _isLoading = true);
     final provider = context.read<AuthProvider>();
-   
-    final success = await provider.login(
+
+    final success =
+        await provider.login(
           emailController.text.trim(),
           passwordController.text,
         ) ??
@@ -65,8 +66,10 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -137,8 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           hintText: "you@example.com",
-                          hintStyle:
-                              const TextStyle(color: AppColors.disabled),
+                          hintStyle: const TextStyle(color: AppColors.disabled),
                           prefixIcon: const Icon(
                             Icons.email_outlined,
                             color: AppColors.textSecondary,
@@ -151,13 +153,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: AppColors.border),
+                            borderSide: const BorderSide(
+                              color: AppColors.border,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: AppColors.border),
+                            borderSide: const BorderSide(
+                              color: AppColors.border,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -187,8 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           hintText: "••••••••",
-                          hintStyle:
-                              const TextStyle(color: AppColors.disabled),
+                          hintStyle: const TextStyle(color: AppColors.disabled),
                           prefixIcon: const Icon(
                             Icons.lock_outline_rounded,
                             color: AppColors.textSecondary,
@@ -214,13 +217,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: AppColors.border),
+                            borderSide: const BorderSide(
+                              color: AppColors.border,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: AppColors.border),
+                            borderSide: const BorderSide(
+                              color: AppColors.border,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
