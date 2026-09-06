@@ -6,6 +6,7 @@ import 'package:sansom/provider/auth/auth_provider.dart';
 import 'package:sansom/provider/budget/budget_category_provider.dart';
 import 'package:sansom/provider/budget/budget_provider.dart';
 import 'package:sansom/provider/category/category_provider.dart';
+import 'package:sansom/provider/transaction/transaction_provider.dart';
 import 'package:sansom/view/auth/login.dart';
 import 'package:sansom/widget/custom_bottom_nav.dart';
 
@@ -13,42 +14,28 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
 
-        ChangeNotifierProvider(
-          create: (_) => BudgetProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => BudgetProvider()),
 
-        ChangeNotifierProvider(
-          create: (_) => CategoryProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
 
-        ChangeNotifierProvider(
-          create: (_) => BudgetCategoryProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => AIProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => AccountTypeProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => BudgetCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => AIProvider()),
+        ChangeNotifierProvider(create: (_) => AccountTypeProvider()),
+
+        ChangeNotifierProvider(create: (_) => TransactionProvider()),
       ],
       child: const MyApp(),
     ),
   );
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: LoginScreen());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: LoginScreen());
   }
 }
