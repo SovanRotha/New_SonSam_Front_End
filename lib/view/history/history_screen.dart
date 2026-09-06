@@ -12,14 +12,21 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
 
-  void initState() {
-    super.initState();
+void initState() {
+  super.initState();
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   context.read<TransactionProvider>().loadTransactions(TokenStorage.getToken() ?? '');
-    // });
-    // Replace with actual token
-  }
+  loadTransactions();
+}
+  
+Future<void> loadTransactions() async {
+  final token = await TokenStorage.getToken();
+
+  if (!mounted) return;
+
+  context.read<TransactionProvider>().loadTransactions(
+    token ?? '',
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +40,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         itemBuilder: (context, index) {
           final transaction = transactionProvider.transactions[index];
           return ListTile(
-            title: Text(transaction.amount.toString()),
+            title: Text(transaction.description ?? 'No Description'),
             subtitle: Text('\$${transaction.amount.toStringAsFixed(2)}'),
+            trailing: Text(transaction.transactionDate.toString()),
           );
         },
       ),
