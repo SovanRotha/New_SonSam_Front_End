@@ -1,3 +1,5 @@
+import 'package:sansom/models/account/account_type_model.dart';
+
 class AccountModel {
   final int id;
   final int userId;
@@ -8,6 +10,7 @@ class AccountModel {
   final String? icon;
   final String? color;
   final String status;
+  AccountTypeModel? accountType;
 
   AccountModel({
     required this.id,
@@ -19,23 +22,23 @@ class AccountModel {
     this.icon,
     this.color,
     required this.status,
+    this.accountType,
   });
 
   factory AccountModel.fromJson(Map<String, dynamic> json) {
     return AccountModel(
-      id: json['id'],
-      userId: json['user_id'],
-      accountTypeId: json['account_type_id'],
-      name: json['name'] ?? '',
-      balance: double.tryParse(
-            json['balance'].toString(),
-          ) ??
-          0.0,
-      currency: json['currency'] ?? 'USD',
+      id: int.tryParse(json['id'].toString()) ?? 0,
+      userId: int.tryParse(json['user_id'].toString()) ?? 0,
+      accountTypeId: int.tryParse(json['account_type_id'].toString()) ?? 0,
+      name: json['name']?.toString() ?? '',
+      balance: double.tryParse(json['balance'].toString()) ?? 0.0,
+      currency: json['currency']?.toString() ?? 'USD',
       icon: json['icon'],
       color: json['color'],
       status: json['status'] ?? 'active',
-
+      accountType: json['account_type'] != null
+          ? AccountTypeModel.fromJson(json['account_type'])
+          : null,
     );
   }
 
@@ -50,7 +53,7 @@ class AccountModel {
       'icon': icon,
       'color': color,
       'status': status,
+      'account_type': accountType?.toJson(),
     };
   }
 }
-

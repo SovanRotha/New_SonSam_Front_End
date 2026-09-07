@@ -5,7 +5,6 @@ import 'package:sansom/core/constant/api_url.dart';
 import 'package:sansom/service/token/token_storage.dart';
 
 class AccountTypeService {
-
   Future<Map<String, String>> getHeaders() async {
     final token = await TokenStorage.getToken();
 
@@ -18,7 +17,7 @@ class AccountTypeService {
 
   // ================= GET ALL ACCOUNT TYPES =================
 
-  Future<Map<String, dynamic>> getAccountTypes() async {
+  Future<dynamic> getAccountTypes() async {
     final response = await http.get(
       Uri.parse('${ApiUrl.baseUrl}/accountTypes'),
       headers: await getHeaders(),
@@ -28,14 +27,12 @@ class AccountTypeService {
       return jsonDecode(response.body);
     }
 
-    throw Exception(
-      'Failed to load account types: ${response.body}',
-    );
+    throw Exception('Failed to load account types: ${response.body}');
   }
 
   // ================= GET ONE ACCOUNT TYPE =================
 
-  Future<Map<String, dynamic>> getAccountType(int id) async {
+  Future<dynamic> getAccountType(int id) async {
     final response = await http.get(
       Uri.parse('${ApiUrl.baseUrl}/accountTypes/$id'),
       headers: await getHeaders(),
@@ -45,14 +42,12 @@ class AccountTypeService {
       return jsonDecode(response.body);
     }
 
-    throw Exception(
-      'Failed to load account type: ${response.body}',
-    );
+    throw Exception('Failed to load account type: ${response.body}');
   }
 
   // ================= CREATE ACCOUNT TYPE =================
 
-  Future<Map<String, dynamic>> createAccountType(
+  Future<dynamic> createAccountType(
     Map<String, dynamic> accountTypeData,
   ) async {
     final response = await http.post(
@@ -65,9 +60,7 @@ class AccountTypeService {
       return jsonDecode(response.body);
     }
 
-    throw Exception(
-      'Failed to create account type: ${response.body}',
-    );
+    throw Exception('Failed to create account type: ${response.body}');
   }
 
   // ================= UPDATE ACCOUNT TYPE =================
@@ -86,9 +79,7 @@ class AccountTypeService {
       return jsonDecode(response.body);
     }
 
-    throw Exception(
-      'Failed to update account type: ${response.body}',
-    );
+    throw Exception('Failed to update account type: ${response.body}');
   }
 
   // ================= DELETE ACCOUNT TYPE =================
@@ -99,11 +90,8 @@ class AccountTypeService {
       headers: await getHeaders(),
     );
 
-    if (response.statusCode != 200 &&
-        response.statusCode != 204) {
-      throw Exception(
-        'Failed to delete account type: ${response.body}',
-      );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete account type: ${response.body}');
     }
   }
 }

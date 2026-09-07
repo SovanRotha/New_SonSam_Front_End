@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:sansom/models/account/account_type_model.dart';
-
 import 'package:sansom/service/account/account_type_service.dart';
 
 class AccountTypeProvider extends ChangeNotifier {
-
-  final AccountTypeService accountTypeService =
-      AccountTypeService();
+  final AccountTypeService accountTypeService = AccountTypeService();
 
   List<AccountTypeModel> accountTypes = [];
 
@@ -15,219 +12,258 @@ class AccountTypeProvider extends ChangeNotifier {
 
   String? errorMessage;
 
-  // Get account types
+  // =========================================================
+  // GET ALL ACCOUNT TYPES
+  // =========================================================
 
   Future<void> getAccountTypes() async {
-
     isLoading = true;
-
     errorMessage = null;
-
     notifyListeners();
 
     try {
+      final response = await accountTypeService.getAccountTypes();
 
-      final response =
-          await accountTypeService.getAccountTypes();
-
-      final List<dynamic> accountTypeData =
-          response['accountType'];
-
-      accountTypes = accountTypeData
-          .map((json) => AccountTypeModel.fromJson(json))
-          .toList();
-
-    } catch (e) {
-
-      errorMessage = e.toString();
-
-    }
-
-    isLoading = false;
-
-    notifyListeners();
-  }
-
-  // Get one account type
-
-  Future<AccountTypeModel?> getAccountType(int id) async {
-
-    isLoading = true;
-
-    errorMessage = null;
-
-    notifyListeners();
-
-    try {
-
-      final response =
-          await accountTypeService.getAccountType(id);
-
-      if (response['accountType'] != null) {
-
-        return AccountTypeModel.fromJson(
-          response['accountType'],
-        );
-
+      final dynamic accountTypeResponse;
+      if (response is List) {
+        accountTypeResponse = response;
+      } else if (response is Map<String, dynamic>) {
+        accountTypeResponse =
+            response['accountTypes'] ??
+            response['account_types'] ??
+            response['accountType'] ??
+            response['data'] ??
+            [];
+      } else {
+        accountTypeResponse = [];
       }
 
-      return null;
-
+      if (accountTypeResponse is List) {
+        accountTypes = accountTypeResponse
+            .whereType<Map<String, dynamic>>()
+            .map((json) => AccountTypeModel.fromJson(json))
+            .toList();
+      } else if (accountTypeResponse is Map<String, dynamic>) {
+        accountTypes = [AccountTypeModel.fromJson(accountTypeResponse)];
+      } else {
+        accountTypes = [];
+      }
     } catch (e) {
-
       errorMessage = e.toString();
-
-      return null;
-
     } finally {
-
       isLoading = false;
-
       notifyListeners();
     }
   }
 
-  // Create account type
+  // =========================================================
+  // GET ONE ACCOUNT TYPE
+  // =========================================================
 
-  Future<bool> createAccountType(
-    Map<String, dynamic> accountTypeData,
-  ) async {
-
+  Future<AccountTypeModel?> getAccountType(int id) async {
     isLoading = true;
-
     errorMessage = null;
-
     notifyListeners();
 
     try {
+      final response = await accountTypeService.getAccountType(id);
 
-      final response =
-          await accountTypeService.createAccountType(
+      final dynamic accountTypeResponse = response is List
+          ? response
+          : response is Map<String, dynamic>
+          ? response['accountType'] ??
+                response['accountTypes'] ??
+                response['account_type'] ??
+                response['data']
+          : null;
+
+      // API returns:
+      //
+      // "accountTypes": [
+      //   {
+      //     "id": 1,
+      //     "name": "ABA"
+      //   }
+      // ]
+
+      if (accountTypeResponse is List) {
+        for (final json in accountTypeResponse) {
+          if (json is Map<String, dynamic>) {
+            final accountType = AccountTypeModel.fromJson(json);
+
+            if (accountType.id == id) {
+              return accountType;
+            }
+          }
+        }
+      }
+
+      // API returns:
+      //
+      // "accountType": {
+      //   "id": 1,
+      //   "name": "ABA"
+      // }
+
+      if (accountTypeResponse is Map<String, dynamic>) {
+        final accountType = AccountTypeModel.fromJson(accountTypeResponse);
+
+        if (accountType.id == id) {
+          return accountType;
+        }
+      }
+
+      return null;
+    } catch (e) {
+      errorMessage = e.toString();
+      return null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // =========================================================
+  // CREATE ACCOUNT TYPE
+  // =========================================================
+
+  Future<bool> createAccountType(Map<String, dynamic> accountTypeData) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await accountTypeService.createAccountType(
         accountTypeData,
       );
 
-      // Depending on your create API response
+      final accountTypeResponse =
+          response['accountType'] ??
+          response['accountTypes'] ??
+          response['account_type'] ??
+          response['data'];
 
-      if (response['accountType'] != null) {
+      // If API returns a single account type
+      if (accountTypeResponse is Map<String, dynamic>) {
+        final accountType = AccountTypeModel.fromJson(accountTypeResponse);
 
-        accountTypes.add(
-          AccountTypeModel.fromJson(
-            response['accountType'],
-          ),
-        );
-
+        accountTypes.add(accountType);
+      }
+      // If API returns a list
+      else if (accountTypeResponse is List) {
+        for (final json in accountTypeResponse) {
+          if (json is Map<String, dynamic>) {
+            accountTypes.add(AccountTypeModel.fromJson(json));
+          }
+        }
       }
 
-      isLoading = false;
-
-      notifyListeners();
-
       return true;
-
     } catch (e) {
-
       errorMessage = e.toString();
-
-      isLoading = false;
-
-      notifyListeners();
-
       return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Update account type
+  // =========================================================
+  // UPDATE ACCOUNT TYPE
+  // =========================================================
 
   Future<bool> updateAccountType(
     int id,
     Map<String, dynamic> accountTypeData,
   ) async {
-
     isLoading = true;
-
     errorMessage = null;
-
     notifyListeners();
 
     try {
-
-      final response =
-          await accountTypeService.updateAccountType(
+      final response = await accountTypeService.updateAccountType(
         id,
         accountTypeData,
       );
 
-      if (response['accountType'] != null) {
+      final accountTypeResponse =
+          response['accountType'] ??
+          response['accountTypes'] ??
+          response['account_type'] ??
+          response['data'];
 
-        final updatedAccountType =
-            AccountTypeModel.fromJson(
-          response['accountType'],
-        );
+      AccountTypeModel? updatedAccountType;
 
+      // Single object
+      if (accountTypeResponse is Map<String, dynamic>) {
+        updatedAccountType = AccountTypeModel.fromJson(accountTypeResponse);
+      }
+      // List
+      else if (accountTypeResponse is List) {
+        for (final json in accountTypeResponse) {
+          if (json is Map<String, dynamic>) {
+            final accountType = AccountTypeModel.fromJson(json);
+
+            if (accountType.id == id) {
+              updatedAccountType = accountType;
+              break;
+            }
+          }
+        }
+      }
+
+      // Update local list
+      if (updatedAccountType != null) {
         final index = accountTypes.indexWhere(
           (accountType) => accountType.id == id,
         );
 
         if (index != -1) {
-
           accountTypes[index] = updatedAccountType;
-
         }
-
       }
 
-      isLoading = false;
-
-      notifyListeners();
-
       return true;
-
     } catch (e) {
-
       errorMessage = e.toString();
-
-      isLoading = false;
-
-      notifyListeners();
-
       return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Delete account type
+  // =========================================================
+  // DELETE ACCOUNT TYPE
+  // =========================================================
 
   Future<bool> deleteAccountType(int id) async {
-
     isLoading = true;
-
     errorMessage = null;
-
     notifyListeners();
 
     try {
-
       await accountTypeService.deleteAccountType(id);
 
-      accountTypes.removeWhere(
-        (accountType) => accountType.id == id,
-      );
-
-      isLoading = false;
-
-      notifyListeners();
+      // Remove from local list
+      accountTypes.removeWhere((accountType) => accountType.id == id);
 
       return true;
-
     } catch (e) {
-
       errorMessage = e.toString();
-
-      isLoading = false;
-
-      notifyListeners();
-
       return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
-}
 
+  // =========================================================
+  // CLEAR ERROR
+  // =========================================================
+
+  void clearError() {
+    errorMessage = null;
+    notifyListeners();
+  }
+}

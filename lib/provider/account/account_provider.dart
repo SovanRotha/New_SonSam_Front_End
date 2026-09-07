@@ -21,10 +21,16 @@ class AccountProvider extends ChangeNotifier {
     try {
       final response = await accountService.getAccount();
 
-      final List<dynamic> accountData = response['account'];
+      final accountResponse = response['accounts'] ?? response['account'];
+      final List<dynamic> accountData = accountResponse is List
+          ? accountResponse
+          : accountResponse is Map<String, dynamic>
+          ? [accountResponse]
+          : [];
 
       accountModel = accountData
-          .map((json) => AccountModel.fromJson(json))
+          .whereType<Map<String, dynamic>>()
+          .map(AccountModel.fromJson)
           .toList();
     } catch (e) {
       errorMessage = e.toString();
