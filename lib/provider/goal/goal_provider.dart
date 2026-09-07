@@ -19,7 +19,7 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.getGoals();
 
-      final List<dynamic> goalData = response['goals'] ?? [];
+      final List<dynamic> goalData = response['savings_goal'] ?? [];
 
       goals = goalData
           .map((json) => GoalModel.fromJson(json as Map<String, dynamic>))
@@ -37,8 +37,8 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.getGoal(id);
 
-      if (response['goal'] != null) {
-        return GoalModel.fromJson(response['goal'] as Map<String, dynamic>);
+      if (response['savings_goal'] != null) {
+        return GoalModel.fromJson(response['savings_goal'] as Map<String, dynamic>);
       }
 
       return null;
@@ -59,9 +59,9 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.createGoal(goalData);
 
-      if (response['goal'] != null) {
+      if (response['savings_goal'] != null) {
         final newGoal = GoalModel.fromJson(
-          response['goal'] as Map<String, dynamic>,
+          response['savings_goal'] as Map<String, dynamic>,
         );
 
         goals.insert(0, newGoal);
@@ -90,9 +90,9 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.updateGoal(id, goalData);
 
-      if (response['goal'] != null) {
+      if (response['savings_goal'] != null) {
         final updatedGoal = GoalModel.fromJson(
-          response['goal'] as Map<String, dynamic>,
+          response['savings_goal'] as Map<String, dynamic>,
         );
 
         final index = goals.indexWhere((goal) => goal.id == id);
@@ -150,9 +150,9 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.addMoney(id, amount);
 
-      if (response['goal'] != null) {
+      if (response['savings_goal'] != null) {
         final updatedGoal = GoalModel.fromJson(
-          response['goal'] as Map<String, dynamic>,
+          response['savings_goal'] as Map<String, dynamic>,
         );
 
         final index = goals.indexWhere((goal) => goal.id == id);

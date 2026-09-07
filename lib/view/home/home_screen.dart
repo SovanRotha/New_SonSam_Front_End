@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sansom/widget/Account/Account_screen.dart';
 import 'package:sansom/widget/Account/account_type_screen.dart';
 import 'package:sansom/widget/category/category_screen.dart';
+import 'package:sansom/widget/contribution/contribution_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -10,6 +11,7 @@ class HomeScreen extends StatelessWidget {
     CategoryScreen(),
     AccountScreen(),
     AccountTypeScreen(),
+    
     ];
 
   @override

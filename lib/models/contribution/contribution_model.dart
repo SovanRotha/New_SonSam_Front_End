@@ -1,4 +1,6 @@
 
+import 'package:sansom/models/goal/goal_model.dart';
+
 class ContributionModel {
   final int id;
   final int userId;
@@ -6,6 +8,7 @@ class ContributionModel {
   final double amount;
   final String? note;
   final String? contributionDate;
+  GoalModel? goal;
 
   ContributionModel({
     required this.id,
@@ -14,6 +17,7 @@ class ContributionModel {
     required this.amount,
     this.note,
     this.contributionDate,
+    this.goal,
   });
 
   factory ContributionModel.fromJson(
@@ -30,6 +34,9 @@ class ContributionModel {
       note: json['note']?.toString(),
       contributionDate:
           json['contribution_date']?.toString(),
+      goal: json['goal'] != null
+          ? GoalModel.fromJson(json['goal'])
+          : null,
     );
   }
 
@@ -39,6 +46,7 @@ class ContributionModel {
       'amount': amount,
       'note': note,
       'contribution_date': contributionDate,
+      'goal': goal?.toJson(),
     };
   }
 }
