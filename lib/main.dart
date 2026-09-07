@@ -10,6 +10,7 @@ import 'package:sansom/provider/budget/budget_provider.dart';
 import 'package:sansom/provider/category/category_provider.dart';
 import 'package:sansom/provider/subscription/subscription_provider.dart';
 import 'package:sansom/provider/transaction/transaction_provider.dart';
+import 'package:sansom/provider/contribution/contribution_provider.dart';
 import 'package:sansom/provider/goal/goal_provider.dart';
 import 'package:sansom/provider/subscription/subscription_provider.dart';
 import 'package:sansom/view/auth/login.dart';
@@ -29,6 +30,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => RecurringTransactionProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => GoalProvider()),
+        ChangeNotifierProvider(create: (_) => ContributionProvider()),
+        
       ],
       child: const MyApp(),
     ),
