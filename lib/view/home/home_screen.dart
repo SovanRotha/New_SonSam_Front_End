@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sansom/view/bill/bill_screen.dart';
+import 'package:sansom/view/bill/recurring_screen.dart';
+import 'package:sansom/view/bill/subscribtion_screen.dart';
 import 'package:sansom/widget/Account/Account_screen.dart';
 import 'package:sansom/widget/Account/account_type_screen.dart';
 import 'package:sansom/widget/category/category_screen.dart';
@@ -11,7 +14,9 @@ class HomeScreen extends StatelessWidget {
     CategoryScreen(),
     AccountScreen(),
     AccountTypeScreen(),
-    
+    BillScreen(),
+    RecurringScreen(),
+    SubscribtionScreen(),
     ];
 
   @override
@@ -20,7 +25,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Home Screen')),
       body: Card(
         child: ListView.builder(
-          itemCount: 3,
+          itemCount: pages.length,
           itemBuilder: (context, index) {
             return ListTile(
               leading: const Icon(Icons.category),

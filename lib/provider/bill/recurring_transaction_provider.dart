@@ -18,7 +18,7 @@ class RecurringTransactionProvider extends ChangeNotifier {
     try {
       final response = await recurringTransactionService
           .getRecurringTransactions();
-      final recurringData = response['recurringTransaction'];
+      final recurringData = response['recurring_transactions'];
 
       if (recurringData is List) {
         recurringTransactions = recurringData
@@ -41,7 +41,7 @@ class RecurringTransactionProvider extends ChangeNotifier {
     try {
       final response = await recurringTransactionService
           .getRecurringTransaction(id);
-      final recurringData = response['recurringTransaction'];
+      final recurringData = response['recurring_transactions'];
 
       if (recurringData is Map<String, dynamic>) {
         return RecurringTransaction.fromJson(recurringData);
@@ -66,7 +66,7 @@ class RecurringTransactionProvider extends ChangeNotifier {
     try {
       final response = await recurringTransactionService
           .createRecurringTransaction(recurringData);
-      final createdData = response['recurringTransaction'];
+      final createdData = response['recurring_transactions'];
 
       if (createdData is Map<String, dynamic>) {
         recurringTransactions.add(RecurringTransaction.fromJson(createdData));
@@ -92,7 +92,7 @@ class RecurringTransactionProvider extends ChangeNotifier {
     try {
       final response = await recurringTransactionService
           .updateRecurringTransaction(id, recurringData);
-      final updatedData = response['recurringTransaction'];
+      final updatedData = response['recurring_transactions'];
 
       if (updatedData is Map<String, dynamic>) {
         final updatedTransaction = RecurringTransaction.fromJson(updatedData);

@@ -1,3 +1,6 @@
+import 'package:sansom/models/account/account_model.dart';
+import 'package:sansom/models/category/category_model.dart';
+
 class SubscriptionModel {
   final int id;
   final int userId;
@@ -6,10 +9,12 @@ class SubscriptionModel {
   final String name;
   final double amount;
   final String billingCycle;
-  final String nextPaymentDate;
+  final String? nextPaymentDate;
   final String startDate;
   final String? endDate;
   final String? status;
+  AccountModel? account;
+  Category? category;
 
   SubscriptionModel({
     required this.id,
@@ -19,10 +24,12 @@ class SubscriptionModel {
     required this.name,
     required this.amount,
     required this.billingCycle,
-    required this.nextPaymentDate,
+    this.nextPaymentDate,
     required this.startDate,
     this.endDate,
     this.status,
+    this.account,
+    this.category,
   });
 
   factory SubscriptionModel.fromJson(Map<String, dynamic> json) {
@@ -34,10 +41,17 @@ class SubscriptionModel {
       name: json['name']?.toString() ?? '',
       amount: double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
       billingCycle: json['billing_cycle']?.toString() ?? '',
-      nextPaymentDate: json['next_payment_date']?.toString() ?? '',
+      nextPaymentDate: json['next_payment_date']?.toString(),
       startDate: json['start_date']?.toString() ?? '',
       endDate: json['end_date']?.toString(),
       status: json['status']?.toString(),
+      account: json['account'] != null
+          ? AccountModel.fromJson(json['account'])
+          : null,
+      category: json['category'] != null
+          ? Category.fromJson(json['category'])
+          : null,
+
     );
   }
 
@@ -52,6 +66,8 @@ class SubscriptionModel {
       'start_date': startDate,
       'end_date': endDate,
       'status': status,
+      'account': account?.toJson(),
+      'category': category?.toJson(),
     };
   }
 }

@@ -83,4 +83,18 @@ class AccountServise {
       );
     }
   }
+
+  Future<void> deactivateAccount(int id) async {
+    final response = await http.patch(
+      Uri.parse('${ApiUrl.baseUrl}/accounts/$id/deactivate'),
+      headers: await getHeaders(),
+    );
+
+    if (response.statusCode != 200 &&
+        response.statusCode != 204) {
+      throw Exception(
+        'Failed to deactivate account: ${response.body}',
+      );
+    }
+  }
 }

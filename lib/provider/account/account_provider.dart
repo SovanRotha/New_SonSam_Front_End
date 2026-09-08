@@ -186,4 +186,23 @@ class AccountProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> deactivateAccount(int id) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      await accountService.deactivateAccount(id);
+      accountModel.removeWhere((account) => account.id == id);
+      isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }

@@ -10,9 +10,7 @@ class AccountScreen extends StatefulWidget {
   State<AccountScreen> createState() => _AccountScreenState();
 }
 
-
 class _AccountScreenState extends State<AccountScreen> {
-
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -27,7 +25,7 @@ class _AccountScreenState extends State<AccountScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Account Screen'),
-        actions : [
+        actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -40,7 +38,6 @@ class _AccountScreenState extends State<AccountScreen> {
             },
           ),
         ],
-      
       ),
       body: accountProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -52,14 +49,62 @@ class _AccountScreenState extends State<AccountScreen> {
                   child: ListView.builder(
                     itemCount: accountProvider.accountModel.length,
                     itemBuilder: (context, index) {
-                      final accountType =
-                          accountProvider.accountModel[index];
-                      return ListTile(title: Text(accountType.name));
+                      final accountType = accountProvider.accountModel[index];
+                      return ListTile(
+                        title: Text(accountType.name),
+                        subtitle: Text(
+                          'Balance: ${accountType.balance.toStringAsFixed(2)}',
+                        ),
+                        leading: const Icon(Icons.account_balance_wallet),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.block),
+                          tooltip: 'Deactivate account',
+                          onPressed: () async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                title: const Text('Deactivate Account'),
+                                content: const Text(
+                                  'Are you sure you want to deactivate this account?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(dialogContext).pop(false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(dialogContext).pop(true),
+                                    child: const Text('Deactivate'),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirmed != true) return;
+
+                            final deactivated = await accountProvider
+                                .deactivateAccount(accountType.id);
+
+                            if (!mounted || deactivated) return;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  accountProvider.errorMessage ??
+                                      'Failed to deactivate account',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
                     },
                   ),
                 ),
               ],
             ),
-    ); 
+    );
   }
 }

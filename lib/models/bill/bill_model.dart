@@ -1,4 +1,7 @@
 
+import 'package:sansom/models/account/account_model.dart';
+import 'package:sansom/models/category/category_model.dart';
+
 class BillModel {
   final int id;
   final int userId;
@@ -9,6 +12,8 @@ class BillModel {
   final String dueDate;
   final String status;
   final String? notes;
+  AccountModel? account;
+  Category? category;
 
   BillModel({
     required this.id,
@@ -20,6 +25,8 @@ class BillModel {
     required this.dueDate,
     required this.status,
     this.notes,
+    this.account,
+    this.category,
   });
 
   factory BillModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +43,12 @@ class BillModel {
       dueDate: json['due_date']?.toString() ?? '',
       status: json['status']?.toString() ?? 'upcoming',
       notes: json['notes']?.toString(),
+      account: json['account'] != null
+          ? AccountModel.fromJson(json['account'])
+          : null,
+      category: json['category'] != null
+          ? Category.fromJson(json['category'])
+          : null
     );
   }
 
@@ -48,6 +61,8 @@ class BillModel {
       'due_date': dueDate,
       'status': status,
       'notes': notes,
+      'account': account?.toJson(),
+      'category': category?.toJson(),
     };
   }
 }

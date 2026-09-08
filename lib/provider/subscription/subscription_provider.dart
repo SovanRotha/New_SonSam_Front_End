@@ -44,8 +44,8 @@ class SubscriptionProvider extends ChangeNotifier {
     try {
       final response = await subscriptionService.getSubscription(id);
 
-      if (response['subscription'] != null) {
-        return SubscriptionModel.fromJson(response['subscription']);
+      if (response['subscriptions'] != null) {
+        return SubscriptionModel.fromJson(response['subscriptions']);
       }
 
       return null;
@@ -71,9 +71,9 @@ class SubscriptionProvider extends ChangeNotifier {
         subscriptionData,
       );
 
-      if (response['subscription'] != null) {
+      if (response['subscriptions'] != null) {
         final newSubscription = SubscriptionModel.fromJson(
-          response['subscription'],
+          response['subscriptions'],
         );
 
         subscriptions.insert(0, newSubscription);
@@ -111,9 +111,9 @@ class SubscriptionProvider extends ChangeNotifier {
         subscriptionData,
       );
 
-      if (response['subscription'] != null) {
+      if (response['subscriptions'] != null) {
         final updatedSubscription = SubscriptionModel.fromJson(
-          response['subscription'],
+          response['subscriptions'],
         );
 
         final index = subscriptions.indexWhere(
