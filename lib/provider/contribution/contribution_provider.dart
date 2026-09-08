@@ -21,10 +21,20 @@ class ContributionProvider extends ChangeNotifier {
     try {
       final response = await contributionService.getContributions();
 
-      final List<dynamic> data = response['contributions'] ?? [];
+      final rawData = response['contributions'] ??
+          response['contribution'] ??
+          response['data'] ??
+          <dynamic>[];
+
+      final List<dynamic> data = rawData is List
+          ? rawData
+          : rawData is Map<String, dynamic>
+              ? [rawData]
+              : [];
 
       contributions = data
-          .map((json) => ContributionModel.fromJson(json))
+          .whereType<Map<String, dynamic>>()
+          .map(ContributionModel.fromJson)
           .toList();
     } catch (e) {
       errorMessage = e.toString();
@@ -45,7 +55,7 @@ class ContributionProvider extends ChangeNotifier {
     try {
       final response = await contributionService.getContribution(id);
 
-      final data = response['contribution'];
+      final data = response['contributions'];
 
       if (data != null) {
         final contribution = ContributionModel.fromJson(data);
@@ -78,7 +88,7 @@ class ContributionProvider extends ChangeNotifier {
         contributionData,
       );
 
-      final data = response['contribution'];
+      final data = response['contributions'];
 
       if (data != null) {
         final contribution = ContributionModel.fromJson(data);
@@ -117,7 +127,7 @@ class ContributionProvider extends ChangeNotifier {
         contributionData,
       );
 
-      final data = response['contribution'];
+      final data = response['contributions'];
 
       if (data != null) {
         final updatedContribution = ContributionModel.fromJson(data);

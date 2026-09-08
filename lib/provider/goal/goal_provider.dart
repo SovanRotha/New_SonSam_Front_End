@@ -19,10 +19,21 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.getGoals();
 
-      final List<dynamic> goalData = response['savings_goal'] ?? [];
+      final rawGoalData =
+          response['savings_goal'] ??
+          response['goals'] ??
+          response['data'] ??
+          <dynamic>[];
+
+      final List<dynamic> goalData = rawGoalData is List
+          ? rawGoalData
+          : rawGoalData is Map
+          ? [rawGoalData]
+          : [];
 
       goals = goalData
-          .map((json) => GoalModel.fromJson(json as Map<String, dynamic>))
+          .whereType<Map>()
+          .map((goal) => GoalModel.fromJson(Map<String, dynamic>.from(goal)))
           .toList();
     } catch (e) {
       errorMessage = e.toString();
@@ -37,8 +48,15 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.getGoal(id);
 
-      if (response['savings_goal'] != null) {
-        return GoalModel.fromJson(response['savings_goal'] as Map<String, dynamic>);
+      final rawGoal =
+          response['savings_goal'] ?? response['goal'] ?? response['data'];
+
+      if (rawGoal is Map<String, dynamic>) {
+        return GoalModel.fromJson(rawGoal);
+      }
+
+      if (rawGoal is Map) {
+        return GoalModel.fromJson(Map<String, dynamic>.from(rawGoal));
       }
 
       return null;
@@ -59,10 +77,11 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.createGoal(goalData);
 
-      if (response['savings_goal'] != null) {
-        final newGoal = GoalModel.fromJson(
-          response['savings_goal'] as Map<String, dynamic>,
-        );
+      final rawGoal =
+          response['savings_goal'] ?? response['goal'] ?? response['data'];
+
+      if (rawGoal is Map) {
+        final newGoal = GoalModel.fromJson(Map<String, dynamic>.from(rawGoal));
 
         goals.insert(0, newGoal);
       }
@@ -90,9 +109,12 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.updateGoal(id, goalData);
 
-      if (response['savings_goal'] != null) {
+      final rawGoal =
+          response['savings_goal'] ?? response['goal'] ?? response['data'];
+
+      if (rawGoal is Map) {
         final updatedGoal = GoalModel.fromJson(
-          response['savings_goal'] as Map<String, dynamic>,
+          Map<String, dynamic>.from(rawGoal),
         );
 
         final index = goals.indexWhere((goal) => goal.id == id);
@@ -150,27 +172,61 @@ class GoalProvider extends ChangeNotifier {
     try {
       final response = await goalService.addMoney(id, amount);
 
-      if (response['savings_goal'] != null) {
-        final updatedGoal = GoalModel.fromJson(
-          response['savings_goal'] as Map<String, dynamic>,
-        );
+      final rawGoal =
+          response['savings_goal'] ?? response['goal'] ?? response['data'];
 
-        final index = goals.indexWhere((goal) => goal.id == id);
+      GoalModel? updatedGoal;
 
-        if (index != -1) {
-          goals[index] = updatedGoal;
-        }
+      if (rawGoal is Map<String, dynamic>) {
+        updatedGoal = GoalModel.fromJson(rawGoal);
+      } else if (rawGoal is Map) {
+        updatedGoal = GoalModel.fromJson(Map<String, dynamic>.from(rawGoal));
+      } else {
+        // If API only returns a success message,
+        // get the latest goal from the backend.
+        updatedGoal = await getGoal(id);
+      }
+
+      final index = goals.indexWhere((goal) => goal.id == id);
+
+      if (index != -1 && updatedGoal != null) {
+        goals[index] = updatedGoal;
       }
 
       isLoading = false;
       notifyListeners();
+
       return true;
     } catch (e) {
       errorMessage = e.toString();
+
       isLoading = false;
       notifyListeners();
 
       return false;
+    }
+  }
+
+  // Refresh one goal from backend
+
+  Future<void> refreshGoal(int id) async {
+    try {
+      final updatedGoal = await getGoal(id);
+
+      if (updatedGoal == null) {
+        return;
+      }
+
+      final index = goals.indexWhere((goal) => goal.id == id);
+
+      if (index != -1) {
+        goals[index] = updatedGoal;
+      }
+
+      notifyListeners();
+    } catch (e) {
+      errorMessage = e.toString();
+      notifyListeners();
     }
   }
 }
