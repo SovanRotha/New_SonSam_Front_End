@@ -67,7 +67,7 @@ class BudgetCategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateBudgetCategory(
+  Future<bool> updateBudgetCategory(
     int id,
     Map<String, dynamic> budgetCategoryData,
   ) async {
@@ -91,14 +91,17 @@ class BudgetCategoryProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      // Handle error
-      print('Error updating budget category: $e');
+      errorMessage = e.toString();
+      isLoading = false;
+      notifyListeners();
+      return false;
     }
     isLoading = false;
     notifyListeners();
+    return true;
   }
 
-  Future<void> deleteBudgetCategory(int id) async {
+  Future<bool> deleteBudgetCategory(int id) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -107,10 +110,13 @@ class BudgetCategoryProvider extends ChangeNotifier {
 
       budgetCategories.removeWhere((category) => category.id == id);
     } catch (e) {
-      // Handle error
-      print('Error deleting budget category: $e');
+      errorMessage = e.toString();
+      isLoading = false;
+      notifyListeners();
+      return false;
     }
     isLoading = false;
     notifyListeners();
+    return true;
   }
 }

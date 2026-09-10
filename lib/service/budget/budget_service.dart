@@ -22,8 +22,15 @@ class BudgetService {
       headers: await getHeaders(),
     );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+    if (response.statusCode == 200 ||
+        response.statusCode == 201 ||
+        response.statusCode == 204) {
+      if (response.body.trim().isEmpty) {
+        return {};
+      }
+
+      final decoded = jsonDecode(response.body);
+      return decoded is Map<String, dynamic> ? decoded : {};
     }
 
     throw Exception(

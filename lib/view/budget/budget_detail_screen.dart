@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sansom/core/constant/app_color.dart';
+
 import 'package:sansom/models/budget/budget_model.dart';
 import 'package:sansom/provider/budget/budget_category_provider.dart';
 import 'package:sansom/widget/budget/create_budget_categories.dart';
@@ -14,8 +16,7 @@ class BudgetDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<BudgetDetailScreen> createState() =>
-      _BudgetDetailScreenState();
+  State<BudgetDetailScreen> createState() => _BudgetDetailScreenState();
 }
 
 class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
@@ -33,103 +34,154 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Budget Detail'),
+        title: const Text(
+          'Budget Detail',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+            fontSize: 18,
+          ),
+        ),
+        backgroundColor: AppColors.surface,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16),
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            // BUDGET SUMMARY
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
+            // BUDGET SUMMARY CARD
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.neutral.withOpacity(0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    // Budget name
-                    Text(
-                      widget.budget.name,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Budget name
+                  Text(
+                    widget.budget.name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
                     ),
+                  ),
 
-                    const SizedBox(height: 20),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(color: AppColors.border, height: 1),
+                  ),
 
-                    // Total limit
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius:
-                                BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.account_balance_wallet,
-                          ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                  // Total limit & Month info layout
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Row(
                           children: [
-                            Text(
-                              'Total Limit',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 13,
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.background,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: const Icon(
+                                Icons.account_balance_wallet_outlined,
+                                color: AppColors.primary,
+                                size: 22,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${widget.budget.totalLimit}',
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Total Limit',
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '\$${widget.budget.totalLimit}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Month
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_month,
-                          size: 20,
-                          color: Colors.grey.shade600,
+                      ),
+                      Container(
+                        height: 40,
+                        width: 1,
+                        color: AppColors.border,
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.background,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: const Icon(
+                                Icons.calendar_month_outlined,
+                                color: AppColors.primary,
+                                size: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Month',
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${widget.budget.month}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Month: ${widget.budget.month}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
 
@@ -137,40 +189,51 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
 
             // TITLE + ADD BUTTON
             Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-
                 const Text(
                   'Budget Categories',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-
                 ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            CreateBudgetCategories(
+                        builder: (context) => CreateBudgetCategories(
                           budgetId: widget.budget.id,
                         ),
                       ),
                     );
                   },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add'),
+                  icon: const Icon(Icons.add, size: 18, color: AppColors.textLight),
+                  label: const Text(
+                    'Add',
+                    style: TextStyle(color: AppColors.textLight),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                 ),
               ],
             ),
 
             const SizedBox(height: 12),
 
-            // BUDGET CATEGORIES
-            Expanded(
+            // BUDGET CATEGORIES LIST
+            const Expanded(
               child: GetBudgetCategories(),
             ),
           ],

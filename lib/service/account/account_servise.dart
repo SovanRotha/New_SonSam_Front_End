@@ -22,8 +22,12 @@ class AccountServise {
       headers: await getHeaders(),
     );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      if (response.body.trim().isEmpty) {
+        return {};
+      }
+
+      return jsonDecode(response.body) as Map<String, dynamic>;
     }
 
     throw Exception(
@@ -54,14 +58,29 @@ class AccountServise {
     int id,
     Map<String, dynamic> accountData,
   ) async {
-    final response = await http.put(
+    var response = await http.put(
       Uri.parse('${ApiUrl.baseUrl}/accounts/$id'),
       headers: await getHeaders(),
       body: jsonEncode(accountData),
     );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+    if (response.statusCode == 405) {
+      response = await http.patch(
+        Uri.parse('${ApiUrl.baseUrl}/accounts/$id'),
+        headers: await getHeaders(),
+        body: jsonEncode(accountData),
+      );
+    }
+
+    if (response.statusCode == 200 ||
+        response.statusCode == 201 ||
+        response.statusCode == 204) {
+      if (response.body.trim().isEmpty) {
+        return {};
+      }
+
+      final decoded = jsonDecode(response.body);
+      return decoded is Map<String, dynamic> ? decoded : {};
     }
 
     throw Exception(

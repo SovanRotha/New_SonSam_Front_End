@@ -129,15 +129,17 @@ class AccountProvider extends ChangeNotifier {
     try {
       final response = await accountService.updateAccount(id, accountData);
 
-      if (response['account'] != null) {
-        final updatedAccountType = AccountModel.fromJson(response['account']);
+      final accountResponseData = response['account'] ?? response['data'];
+
+      if (accountResponseData is Map<String, dynamic>) {
+        final updatedAccount = AccountModel.fromJson(accountResponseData);
 
         final index = accountModel.indexWhere(
-          (accountType) => accountType.id == id,
+          (account) => account.id == id,
         );
 
         if (index != -1) {
-          accountModel[index] = updatedAccountType;
+          accountModel[index] = updatedAccount;
         }
       }
 

@@ -21,9 +21,7 @@ class BudgetProvider extends ChangeNotifier {
 
       final List<dynamic> budgetData = response['budgets'];
 
-      budgets = budgetData
-          .map((json) => Budget.fromJson(json))
-          .toList();
+      budgets = budgetData.map((json) => Budget.fromJson(json)).toList();
     } catch (e) {
       errorMessage = e.toString();
     }
@@ -33,9 +31,7 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   // Create budget
-  Future<bool> createBudget(
-    Map<String, dynamic> budgetData,
-  ) async {
+  Future<bool> createBudget(Map<String, dynamic> budgetData) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -45,9 +41,45 @@ class BudgetProvider extends ChangeNotifier {
 
       // Depending on your create API response
       if (response['budgets'] != null) {
-        budgets.add(
-          Budget.fromJson(response['budgets']),
-        );
+        budgets.add(Budget.fromJson(response['budgets']));
+      }
+
+      isLoading = false;
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      errorMessage = e.toString();
+
+      isLoading = false;
+      notifyListeners();
+
+      return false;
+    }
+  }
+
+  // Update budget
+  Future<bool> updateBudget(int id, Map<String, dynamic> budgetData) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await budgetService.updateBudget(id, budgetData);
+
+      final budgetResponse =
+          response['budget'] ?? response['budgets'] ?? response['data'];
+
+      if (budgetResponse is Map<String, dynamic>) {
+        final updatedBudget = Budget.fromJson(budgetResponse);
+
+        final index = budgets.indexWhere((budget) => budget.id == id);
+
+        if (index != -1) {
+          budgets[index] = updatedBudget;
+        }
+      } else {
+        await getBudget();
       }
 
       isLoading = false;

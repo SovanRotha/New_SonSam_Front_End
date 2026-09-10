@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:sansom/provider/category/category_provider.dart';
 import 'package:sansom/widget/category/create_category.dart';
+import 'package:sansom/widget/category/edit_category.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -12,6 +13,7 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +35,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+
         actions: [
           IconButton(
             onPressed: () {
@@ -43,11 +46,17 @@ class _CategoryScreenState extends State<CategoryScreen> {
           ),
         ],
       ),
+
       body: _buildBody(categoryProvider),
     );
   }
 
+  // ============================================================
+  // BODY
+  // ============================================================
+
   Widget _buildBody(CategoryProvider categoryProvider) {
+
     // Loading
     if (categoryProvider.isLoading) {
       return const Center(
@@ -60,9 +69,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
+
           child: Column(
             mainAxisSize: MainAxisSize.min,
+
             children: [
+
               const Icon(
                 Icons.error_outline,
                 size: 50,
@@ -82,6 +94,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 onPressed: () {
                   categoryProvider.getCategory();
                 },
+
                 child: const Text('Try Again'),
               ),
             ],
@@ -100,10 +113,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
       onRefresh: () async {
         await categoryProvider.getCategory();
       },
+
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
+
         itemCount: categoryProvider.categories.length,
+
         itemBuilder: (context, index) {
+
           final category =
               categoryProvider.categories[index];
 
@@ -116,19 +133,28 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  // ============================================================
+  // EMPTY STATE
+  // ============================================================
+
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
+
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           children: [
+
             Container(
               padding: const EdgeInsets.all(24),
+
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 shape: BoxShape.circle,
               ),
+
               child: Icon(
                 Icons.category_outlined,
                 size: 60,
@@ -140,6 +166,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
             const Text(
               'No Categories Yet',
+
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -150,7 +177,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
             Text(
               'Create categories to organize your income and expenses.',
+
               textAlign: TextAlign.center,
+
               style: TextStyle(
                 color: Colors.grey.shade600,
                 fontSize: 14,
@@ -163,13 +192,19 @@ class _CategoryScreenState extends State<CategoryScreen> {
               onPressed: () {
                 _showCreateCategoryDialog(context);
               },
+
               icon: const Icon(Icons.add),
-              label: const Text('Create Category'),
+
+              label: const Text(
+                'Create Category',
+              ),
+
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 14,
                 ),
+
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -181,52 +216,76 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  // ============================================================
+  // CATEGORY CARD
+  // ============================================================
+
   Widget _buildCategoryCard(
     BuildContext context,
     dynamic category,
   ) {
+
     final bool isIncome =
         category.type.toLowerCase() == 'income';
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(
+        bottom: 12,
+      ),
+
       elevation: 2,
+
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
+
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
         ),
+
         child: Row(
           children: [
-            // Category icon
+
+            // ==================================================
+            // CATEGORY ICON
+            // ==================================================
+
             Container(
               width: 48,
               height: 48,
+
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(14),
               ),
+
               child: Icon(
                 isIncome
                     ? Icons.arrow_downward_rounded
                     : Icons.arrow_upward_rounded,
+
                 size: 24,
               ),
             ),
 
             const SizedBox(width: 14),
 
-            // Category information
+            // ==================================================
+            // CATEGORY INFORMATION
+            // ==================================================
+
             Expanded(
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
+
                 children: [
+
                   Text(
                     category.name,
+
                     style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
@@ -243,9 +302,24 @@ class _CategoryScreenState extends State<CategoryScreen> {
               ),
             ),
 
-            // More menu
+            // ==================================================
+            // MORE MENU
+            // ==================================================
+
             PopupMenuButton<String>(
               onSelected: (value) {
+
+                // EDIT
+                if (value == 'edit') {
+                  _showEditCategoryDialog(
+                    context,
+                    category.id,
+                    category.name,
+                    category.type,
+                  );
+                }
+
+                // DELETE
                 if (value == 'delete') {
                   _showDeleteDialog(
                     context,
@@ -254,17 +328,50 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   );
                 }
               },
+
               itemBuilder: (context) {
+
                 return const [
+
+                  // ==========================================
+                  // EDIT
+                  // ==========================================
+
                   PopupMenuItem<String>(
-                    value: 'delete',
+                    value: 'edit',
+
                     child: Row(
                       children: [
+
+                        Icon(
+                          Icons.edit_outlined,
+                          color: Colors.blue,
+                        ),
+
+                        SizedBox(width: 10),
+
+                        Text('Edit'),
+                      ],
+                    ),
+                  ),
+
+                  // ==========================================
+                  // DELETE
+                  // ==========================================
+
+                  PopupMenuItem<String>(
+                    value: 'delete',
+
+                    child: Row(
+                      children: [
+
                         Icon(
                           Icons.delete_outline,
                           color: Colors.red,
                         ),
+
                         SizedBox(width: 10),
+
                         Text('Delete'),
                       ],
                     ),
@@ -278,27 +385,38 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  // ============================================================
+  // TYPE BADGE
+  // ============================================================
+
   Widget _buildTypeBadge(
     String type,
     bool isIncome,
   ) {
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 5,
       ),
+
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(20),
       ),
+
       child: Row(
         mainAxisSize: MainAxisSize.min,
+
         children: [
+
           Icon(
             isIncome
                 ? Icons.trending_up
                 : Icons.trending_down,
+
             size: 14,
+
             color: Colors.grey.shade700,
           ),
 
@@ -306,6 +424,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
           Text(
             type,
+
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -317,12 +436,19 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  // ============================================================
+  // CREATE CATEGORY DIALOG
+  // ============================================================
+
   void _showCreateCategoryDialog(
     BuildContext context,
   ) {
+
     showDialog(
       context: context,
+
       builder: (context) {
+
         return const Dialog(
           child: CreateCategory(),
         );
@@ -330,15 +456,50 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
+  // ============================================================
+  // EDIT CATEGORY DIALOG
+  // ============================================================
+
+  void _showEditCategoryDialog(
+    BuildContext context,
+    int categoryId,
+    String categoryName,
+    String categoryType,
+  ) {
+
+    showDialog(
+      context: context,
+
+      builder: (context) {
+
+        return Dialog(
+          child: EditCategory(
+            categoryId: categoryId,
+            categoryName: categoryName,
+            categoryType: categoryType,
+          ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // DELETE CATEGORY DIALOG
+  // ============================================================
+
   void _showDeleteDialog(
     BuildContext context,
     int categoryId,
     String categoryName,
   ) {
+
     showDialog(
       context: context,
+
       builder: (dialogContext) {
+
         return AlertDialog(
+
           title: const Text(
             'Delete Category?',
           ),
@@ -348,23 +509,55 @@ class _CategoryScreenState extends State<CategoryScreen> {
           ),
 
           actions: [
+
+            // ================================================
+            // CANCEL
+            // ================================================
+
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-              child: const Text('Cancel'),
+
+              child: const Text(
+                'Cancel',
+              ),
             ),
+
+            // ================================================
+            // DELETE
+            // ================================================
 
             TextButton(
               onPressed: () async {
+
                 Navigator.pop(dialogContext);
 
                 await context
                     .read<CategoryProvider>()
                     .deleteCategory(categoryId);
+
+                if (!mounted) return;
+
+                final provider =
+                    context.read<CategoryProvider>();
+
+                if (provider.errorMessage == null) {
+
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Category deleted successfully',
+                      ),
+                    ),
+                  );
+                }
               },
+
               child: const Text(
                 'Delete',
+
                 style: TextStyle(
                   color: Colors.red,
                 ),
@@ -376,4 +569,3 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 }
-

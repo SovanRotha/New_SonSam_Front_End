@@ -39,4 +39,25 @@ class AuthService {
 
     throw Exception('Register Failed');
   }
+
+  Future<Map<String, dynamic>> logout() async {
+    final token = await TokenStorage.getToken();
+
+    final response = await http.post(
+      Uri.parse('${ApiUrl.baseUrl}/logout'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      await TokenStorage.deleteToken();
+
+      return jsonDecode(response.body);
+    }
+
+    throw Exception('Logout failed');
+  }
 }

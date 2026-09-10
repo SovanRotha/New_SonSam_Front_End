@@ -97,14 +97,20 @@ class BillProvider extends ChangeNotifier {
     try {
       final response = await billService.updateBill(id, billData);
 
-      if (response['bill'] != null) {
-        final updatedBill = BillModel.fromJson(response['bill']);
+      final billResponseData = response['bill'] ?? response['data'];
+
+      if (billResponseData is Map<String, dynamic>) {
+        final updatedBill = BillModel.fromJson(billResponseData);
 
         final index = bills.indexWhere((bill) => bill.id == id);
 
         if (index != -1) {
           bills[index] = updatedBill;
         }
+      }
+
+      if (billResponseData == null) {
+        await getBills();
       }
 
       isLoading = false;

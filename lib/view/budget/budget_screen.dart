@@ -1,8 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sansom/core/constant/app_color.dart';
+
 import 'package:sansom/provider/budget/budget_provider.dart';
 import 'package:sansom/view/budget/budget_detail_screen.dart';
+import 'package:sansom/view/budget/edit_budget.dart';
 import 'package:sansom/widget/budget/create_budget.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -19,7 +21,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
     Future.microtask(() {
       if (!mounted) return;
-
       context.read<BudgetProvider>().getBudget();
     });
   }
@@ -29,22 +30,29 @@ class _BudgetScreenState extends State<BudgetScreen> {
     final budgetProvider = context.watch<BudgetProvider>();
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Budgets',
           style: TextStyle(
             fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+            fontSize: 18,
           ),
         ),
+        backgroundColor: AppColors.surface,
+        elevation: 0,
         actions: [
           IconButton(
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => const CreateBudget(),
+                builder: (context) {
+                  return CreateBudget();
+                } 
               );
             },
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add, color: AppColors.textPrimary),
             tooltip: 'Add Budget',
           ),
         ],
@@ -57,7 +65,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
     // Loading
     if (budgetProvider.isLoading) {
       return const Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(color: AppColors.primary),
       );
     }
 
@@ -72,19 +80,26 @@ class _BudgetScreenState extends State<BudgetScreen> {
               const Icon(
                 Icons.error_outline,
                 size: 50,
-                color: Colors.red,
+                color: Colors.redAccent,
               ),
               const SizedBox(height: 12),
               Text(
                 budgetProvider.errorMessage!,
                 textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
                   budgetProvider.getBudget();
                 },
-                child: const Text('Try Again'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Try Again', style: TextStyle(color: AppColors.textLight)),
               ),
             ],
           ),
@@ -99,6 +114,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
     // Display budgets
     return RefreshIndicator(
+      color: AppColors.primary,
       onRefresh: () async {
         await budgetProvider.getBudget();
       },
@@ -107,7 +123,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
         itemCount: budgetProvider.budgets.length,
         itemBuilder: (context, index) {
           final budget = budgetProvider.budgets[index];
-
           return _buildBudgetCard(context, budget);
         },
       ),
@@ -124,39 +139,35 @@ class _BudgetScreenState extends State<BudgetScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: AppColors.surface,
                 shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.account_balance_wallet_outlined,
                 size: 60,
-                color: Colors.grey.shade600,
+                color: AppColors.textSecondary,
               ),
             ),
-
             const SizedBox(height: 20),
-
             const Text(
               'No Budgets Yet',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
             ),
-
             const SizedBox(height: 8),
-
-            Text(
+            const Text(
               'Create a budget to start managing your spending.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: AppColors.textSecondary,
                 fontSize: 14,
               ),
             ),
-
             const SizedBox(height: 24),
-
             ElevatedButton.icon(
               onPressed: () {
                 showDialog(
@@ -164,9 +175,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   builder: (context) => const CreateBudget(),
                 );
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Create Budget'),
+              icon: const Icon(Icons.add, color: AppColors.textLight),
+              label: const Text('Create Budget', style: TextStyle(color: AppColors.textLight)),
               style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                elevation: 0,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 14,
@@ -182,203 +195,224 @@ class _BudgetScreenState extends State<BudgetScreen> {
     );
   }
 
-  Widget _buildBudgetCard(
-    BuildContext context,
-    dynamic budget,
-  ) {
-    return Card(
+  Widget _buildBudgetCard(BuildContext context, dynamic budget) {
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.neutral.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BudgetDetailScreen(
-                budget: budget,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BudgetDetailScreen(budget: budget),
               ),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(14),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 24,
+                        color: AppColors.primary,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.account_balance_wallet_outlined,
-                      size: 26,
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            budget.name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_month_outlined,
+                                size: 14,
+                                color: AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${budget.month}',
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
+                      onSelected: (value) async {
+                        if (value == 'edit') {
+                          final updated = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return EditBudget(
+                                budgetId: budget.id,
+                                name: budget.name,
+                                month: budget.month.toString(),
+                                totalLimit: budget.totalLimit,
+                                rollover: budget.rollover,
+                                rolloverAmount: budget.rolloverAmount,
+                                status: budget.status,
+                              );
+                            },
+                          );
+
+                          if (!context.mounted) return;
+
+                          if (updated == true) {
+                            await context.read<BudgetProvider>().getBudget();
+                          }
+                        }
+
+                        if (value == 'delete') {
+                          _showDeleteDialog(context, budget.id);
+                        }
+                      },
+                      itemBuilder: (context) {
+                        return const [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit_outlined, size: 18, color: AppColors.textPrimary),
+                                SizedBox(width: 10),
+                                Text('Edit', style: TextStyle(color: AppColors.textPrimary)),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
+                                SizedBox(width: 10),
+                                Text('Delete', style: TextStyle(color: Colors.redAccent)),
+                              ],
+                            ),
+                          ),
+                        ];
+                      },
+                    ),
+                  ],
+                ),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(color: AppColors.border, height: 1),
+                ),
+
+                // Total Limit
+                const Text(
+                  'Total Budget',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '\$${budget.totalLimit}',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
 
-                  const SizedBox(width: 14),
+                const SizedBox(height: 16),
 
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                // Rollover information
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildInfoItem(
+                        icon: Icons.sync,
+                        title: 'Rollover',
+                        value: '${budget.rollover}',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildInfoItem(
+                        icon: Icons.savings_outlined,
+                        title: 'Rollover Amount',
+                        value: '\$${budget.rolloverAmount}',
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Status & Details footer
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildStatusBadge(budget.status),
+                    Row(
+                      children: const [
                         Text(
-                          budget.name,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                          'View Details',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                            fontSize: 13,
                           ),
                         ),
-
-                        const SizedBox(height: 5),
-
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_month_outlined,
-                              size: 16,
-                              color: Colors.grey.shade600,
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              '${budget.month}',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+                        SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 12,
+                          color: AppColors.primary,
                         ),
                       ],
                     ),
-                  ),
-
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'delete') {
-                        _showDeleteDialog(
-                          context,
-                          budget.id,
-                        );
-                      }
-                    },
-                    itemBuilder: (context) {
-                      return const [
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.delete_outline,
-                                color: Colors.red,
-                              ),
-                              SizedBox(width: 10),
-                              Text('Delete'),
-                            ],
-                          ),
-                        ),
-                      ];
-                    },
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Total Limit
-              Text(
-                'Total Budget',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 13,
+                  ],
                 ),
-              ),
-
-              const SizedBox(height: 5),
-
-              Text(
-                '\$${budget.totalLimit}',
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              // Rollover information
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildInfoItem(
-                      icon: Icons.sync,
-                      title: 'Rollover',
-                      value: '${budget.rollover}',
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: _buildInfoItem(
-                      icon: Icons.savings_outlined,
-                      title: 'Rollover Amount',
-                      value: '\$${budget.rolloverAmount}',
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 18),
-
-              // Status
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Status',
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
-                  ),
-
-                  _buildStatusBadge(
-                    budget.status,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // View details
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    'View Details',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -391,41 +425,35 @@ class _BudgetScreenState extends State<BudgetScreen> {
     required String value,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: Colors.grey.shade700,
-          ),
-
+          Icon(icon, size: 18, color: AppColors.primary),
           const SizedBox(width: 8),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.textSecondary,
                   ),
                 ),
-
-                const SizedBox(height: 3),
-
+                const SizedBox(height: 2),
                 Text(
                   value,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],
@@ -440,38 +468,32 @@ class _BudgetScreenState extends State<BudgetScreen> {
     final bool isActive = status.toLowerCase() == 'active';
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: isActive
-            ? Colors.green.shade50
-            : Colors.grey.shade200,
+        color: isActive ? Colors.green.withOpacity(0.1) : AppColors.background,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isActive ? Colors.green.withOpacity(0.3) : AppColors.border,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 7,
-            height: 7,
+            width: 6,
+            height: 6,
             decoration: BoxDecoration(
-              color: isActive ? Colors.green : Colors.grey,
+              color: isActive ? Colors.green : AppColors.textSecondary,
               shape: BoxShape.circle,
             ),
           ),
-
           const SizedBox(width: 6),
-
           Text(
             status,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: isActive
-                  ? Colors.green.shade700
-                  : Colors.grey.shade700,
+              color: isActive ? Colors.green.shade700 : AppColors.textSecondary,
             ),
           ),
         ],
@@ -479,43 +501,32 @@ class _BudgetScreenState extends State<BudgetScreen> {
     );
   }
 
-  void _showDeleteDialog(
-    BuildContext context,
-    int budgetId,
-  ) {
+  void _showDeleteDialog(BuildContext context, int budgetId) {
     showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Delete Budget?'),
-
-          content: const Text(
-            'Are you sure you want to delete this budget? '
-            'This action cannot be undone.',
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            'Delete Budget?',
+            style: TextStyle(color: AppColors.textPrimary),
           ),
-
+          content: const Text(
+            'Are you sure you want to delete this budget? This action cannot be undone.',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
             ),
-
             TextButton(
               onPressed: () async {
                 Navigator.pop(dialogContext);
-
-                await context
-                    .read<BudgetProvider>()
-                    .deleteBudget(budgetId);
+                await context.read<BudgetProvider>().deleteBudget(budgetId);
               },
-              child: const Text(
-                'Delete',
-                style: TextStyle(
-                  color: Colors.red,
-                ),
-              ),
+              child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
             ),
           ],
         );
@@ -523,4 +534,3 @@ class _BudgetScreenState extends State<BudgetScreen> {
     );
   }
 }
-

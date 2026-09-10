@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:sansom/core/constant/app_color.dart';
 import 'package:sansom/provider/contribution/contribution_provider.dart';
 import 'package:sansom/provider/goal/goal_provider.dart';
 import 'package:sansom/provider/transaction/transaction_provider.dart';
@@ -10,7 +9,7 @@ class CreateContribution extends StatefulWidget {
   final int? goalId;
   final String? goalName;
 
-  CreateContribution({
+  const CreateContribution({
     super.key,
     this.goalId,
     this.goalName,
@@ -27,21 +26,13 @@ class _CreateContributionState extends State<CreateContribution> {
   final noteController = TextEditingController();
 
   int? selectedTransactionId;
-
   DateTime? selectedDate;
 
   @override
   void initState() {
     super.initState();
-
-    // No need to call GoalProvider().getGoals() here.
-    //
-    // We already know:
-    // widget.goalId
-    // widget.goalName
-    //
-    // The goal will be refreshed after creating
-    // the contribution.
+    // Default to today's date so it isn't empty initially
+    selectedDate = DateTime.now();
   }
 
   @override
@@ -60,6 +51,19 @@ class _CreateContributionState extends State<CreateContribution> {
       initialDate: selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: AppColors.textLight,
+              surface: AppColors.surface,
+              onSurface: AppColors.textPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedDate != null) {
@@ -82,37 +86,26 @@ class _CreateContributionState extends State<CreateContribution> {
   // CREATE CONTRIBUTION
   // =========================
   Future<void> createContribution() async {
-    // Validate form
     if (!formKey.currentState!.validate()) {
       return;
     }
 
-    // Validate date
     if (selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a contribution date'),
-        ),
+        const SnackBar(content: Text('Please select a contribution date')),
       );
       return;
     }
 
-    // Validate goal ID
     if (widget.goalId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Saving goal is required'),
-        ),
+        const SnackBar(content: Text('Saving goal is required')),
       );
       return;
     }
 
-    final contributionProvider =
-        context.read<ContributionProvider>();
+    final contributionProvider = context.read<ContributionProvider>();
 
-    // =========================
-    // CONTRIBUTION DATA
-    // =========================
     final contributionData = {
       'saving_goal_id': widget.goalId,
       'transaction_id': selectedTransactionId,
@@ -123,61 +116,33 @@ class _CreateContributionState extends State<CreateContribution> {
           : noteController.text.trim(),
     };
 
-    // =========================
-    // CREATE CONTRIBUTION
-    // =========================
-    final success =
-        await contributionProvider.createContribution(
+    final success = await contributionProvider.createContribution(
       contributionData,
     );
 
     if (!mounted) return;
 
-    // =========================
-    // SUCCESS
-    // =========================
     if (success) {
-      // IMPORTANT:
-      //
-      // The Laravel backend should update
-      // current_amount when the contribution is created.
-      //
-      // Therefore, DO NOT call addMoney() here.
-      //
-      // Instead, fetch the latest goal from Laravel.
       await context.read<GoalProvider>().refreshGoal(
-        widget.goalId!,
-      );
+            widget.goalId!,
+          );
 
       if (!mounted) return;
 
-      // Refresh contribution list
       await contributionProvider.getContributions();
 
       if (!mounted) return;
 
-      // Close dialog
       Navigator.of(context).pop();
 
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Contribution created successfully',
-          ),
-        ),
+        const SnackBar(content: Text('Contribution created successfully')),
       );
-    }
-
-    // =========================
-    // ERROR
-    // =========================
-    else {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            contributionProvider.errorMessage ??
-                'Failed to create contribution',
+            contributionProvider.errorMessage ?? 'Failed to create contribution',
           ),
         ),
       );
@@ -186,189 +151,195 @@ class _CreateContributionState extends State<CreateContribution> {
 
   @override
   Widget build(BuildContext context) {
-    final transactionProvider =
-        context.watch<TransactionProvider>();
-
-    final contributionProvider =
-        context.watch<ContributionProvider>();
+    final transactionProvider = context.watch<TransactionProvider>();
+    final contributionProvider = context.watch<ContributionProvider>();
 
     return AlertDialog(
-      title: const Text('Create Contribution'),
-
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Create Contribution',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, color: AppColors.textSecondary, size: 20),
+            onPressed: () => Navigator.of(context).pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
+      ),
       content: SizedBox(
         width: 450,
-
         child: Form(
           key: formKey,
-
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 // =========================
                 // SAVING GOAL
                 // =========================
-                InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Saving Goal',
-                    border: OutlineInputBorder(),
+                const Text(
+                  'Saving Goal',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
-
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
                   child: Text(
                     widget.goalName?.isNotEmpty == true
                         ? widget.goalName!
                         : 'Goal #${widget.goalId}',
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
 
-                const SizedBox(height: 16),
-
-                // =========================
-                // TRANSACTION
-                // =========================
-                //
-                // Currently disabled.
-                //
-                // You can enable this later if
-                // you want to connect a contribution
-                // to a transaction.
-                //
-                // DropdownButtonFormField<int?>(
-                //   value: selectedTransactionId,
-                //
-                //   decoration: const InputDecoration(
-                //     labelText: 'Transaction',
-                //     border: OutlineInputBorder(),
-                //   ),
-                //
-                //   hint: const Text('No transaction'),
-                //
-                //   items: [
-                //     const DropdownMenuItem<int?>(
-                //       value: null,
-                //       child: Text('No transaction'),
-                //     ),
-                //
-                //     ...transactionProvider.transactions.map(
-                //       (transaction) {
-                //         return DropdownMenuItem<int?>(
-                //           value: transaction.id,
-                //           child: Text(
-                //             'Transaction #${transaction.id}',
-                //           ),
-                //         );
-                //       },
-                //     ),
-                //   ],
-                //
-                //   onChanged: (value) {
-                //     setState(() {
-                //       selectedTransactionId = value;
-                //     });
-                //   },
-                // ),
+                const SizedBox(height: 14),
 
                 // =========================
                 // AMOUNT
                 // =========================
+                const Text(
+                  'Amount',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 6),
                 TextFormField(
                   controller: amountController,
-
-                  keyboardType:
-                      const TextInputType.numberWithOptions(
+                  keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    hintText: 'Enter contribution amount',
-                    border: OutlineInputBorder(),
+                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                  decoration: _inputDecoration(
+                    hintText: '0.00',
+                    prefixText: '\$ ',
                   ),
-
                   validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty) {
+                    if (value == null || value.trim().isEmpty) {
                       return 'Please enter an amount';
                     }
-
-                    final amount =
-                        double.tryParse(value.trim());
-
+                    final amount = double.tryParse(value.trim());
                     if (amount == null) {
                       return 'Please enter a valid amount';
                     }
-
                     if (amount <= 0) {
                       return 'Amount must be greater than 0';
                     }
-
                     return null;
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
                 // =========================
                 // CONTRIBUTION DATE
                 // =========================
+                const Text(
+                  'Contribution Date',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 6),
                 InkWell(
                   onTap: selectDate,
-
+                  borderRadius: BorderRadius.circular(12),
                   child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Contribution Date',
-                      border: OutlineInputBorder(),
-                      suffixIcon:
-                          Icon(Icons.calendar_today),
+                    decoration: _inputDecoration(
+                      hintText: 'Select date',
+                      suffixIcon: const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 18,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-
                     child: Text(
                       selectedDate == null
                           ? 'Select date'
                           : formatDate(selectedDate!),
+                      style: TextStyle(
+                        color: selectedDate == null
+                            ? AppColors.textSecondary
+                            : AppColors.textPrimary,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
                 // =========================
                 // NOTE
                 // =========================
+                const Text(
+                  'Note (Optional)',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 6),
                 TextFormField(
                   controller: noteController,
-
                   maxLines: 3,
-
-                  decoration: const InputDecoration(
-                    labelText: 'Note',
-                    hintText: 'Optional note',
-                    border: OutlineInputBorder(),
+                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                  decoration: _inputDecoration(
+                    hintText: 'Add a note about this contribution...',
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
                 // =========================
-                // TRANSACTION LOADING
+                // TRANSACTION LOADING / ERROR
                 // =========================
                 if (transactionProvider.isLoading)
                   const Padding(
                     padding: EdgeInsets.all(8),
-
-                    child: CircularProgressIndicator(),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                        strokeWidth: 2,
+                      ),
+                    ),
                   ),
-
-                // =========================
-                // TRANSACTION ERROR
-                // =========================
                 if (transactionProvider.errorMessage != null)
                   Text(
                     transactionProvider.errorMessage!,
-
                     style: const TextStyle(
-                      color: Colors.red,
+                      color: Colors.redAccent,
+                      fontSize: 12,
                     ),
                   ),
               ],
@@ -376,42 +347,82 @@ class _CreateContributionState extends State<CreateContribution> {
           ),
         ),
       ),
-
-      // =========================
-      // ACTION BUTTONS
-      // =========================
       actions: [
-
-        // CANCEL
         TextButton(
           onPressed: contributionProvider.isLoading
               ? null
-              : () {
-                  Navigator.of(context).pop();
-                },
-
-          child: const Text('Cancel'),
+              : () => Navigator.of(context).pop(),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
         ),
-
-        // CREATE
         ElevatedButton(
           onPressed: contributionProvider.isLoading
               ? null
               : createContribution,
-
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          ),
           child: contributionProvider.isLoading
               ? const SizedBox(
-                  width: 20,
-                  height: 20,
-
+                  width: 18,
+                  height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
+                    color: AppColors.textLight,
                   ),
                 )
-              : const Text('Create'),
+              : const Text(
+                  'Create',
+                  style: TextStyle(
+                    color: AppColors.textLight,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ],
     );
   }
-}
 
+  InputDecoration _inputDecoration({
+    String? hintText,
+    String? prefixText,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      prefixText: prefixText,
+      suffixIcon: suffixIcon,
+      hintStyle: const TextStyle(
+        color: AppColors.textSecondary,
+        fontSize: 13,
+      ),
+      filled: true,
+      fillColor: AppColors.background,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 12,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(
+          color: AppColors.primary,
+          width: 1.5,
+        ),
+      ),
+    );
+  }
+}

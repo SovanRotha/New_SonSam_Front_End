@@ -76,7 +76,8 @@ class BudgetCategoryService {
       headers: await getHeaders(),
     );
 
-    if (response.statusCode != 204) {
+    if (response.statusCode != 200 &&
+      response.statusCode != 204) {
       throw Exception(
         'Failed to delete budget category: ${response.body}',
       );

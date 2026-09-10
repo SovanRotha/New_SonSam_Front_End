@@ -21,7 +21,7 @@ class AuthProvider extends ChangeNotifier {
       final response = await authService.login(request);
 
       user = response['user'];
-      TokenStorage.saveToken(response['token']);
+      await TokenStorage.saveToken(response['token']);
 
       log('${response['token']}');
 
@@ -73,5 +73,22 @@ class AuthProvider extends ChangeNotifier {
 
       return false;
     }
+  }
+
+  Future<void> logout() async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      await authService.logout();
+      await TokenStorage.deleteToken();
+      user = null;
+    } catch (e) {
+      errorMessage = '$e';
+    }
+
+    isLoading = false;
+    notifyListeners();
   }
 }
