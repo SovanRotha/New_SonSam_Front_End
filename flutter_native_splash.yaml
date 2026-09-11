@@ -1,0 +1,8 @@
+flutter_native_splash:
+  color: "#ffffff" # Background color behind your logo
+  image: "lib/assets/images/sansom_log.png"
+
+  # Optional: Ensures proper display on Android 12+
+  android_12:
+    color: "#ffffff"
+    image: "lib/assets/images/sansom_logo.png"

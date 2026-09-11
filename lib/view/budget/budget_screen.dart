@@ -53,7 +53,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 } 
               );
             },
-            icon: const Icon(Icons.add, color: AppColors.textPrimary),
+            icon: const Icon(Icons.add, color: AppColors.primary),
             tooltip: 'Add Budget',
           ),
         ],

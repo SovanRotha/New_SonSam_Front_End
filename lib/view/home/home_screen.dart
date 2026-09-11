@@ -8,6 +8,7 @@ import 'package:sansom/view/history/history_screen.dart';
 // import 'package:sansom/provider/transaction/transaction_provider.dart';
 import 'package:sansom/widget/Account/Account_screen.dart';
 import 'package:sansom/widget/category/category_screen.dart';
+import 'package:sansom/widget/notification/notification.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(
             color: AppColors.primary,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 30,
           ),
         ),
         leading: Padding(
@@ -72,6 +73,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: AppColors.surface,
         elevation: 0,
+
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: AppColors.primary),
+            onPressed: () {
+              // Handle notification icon press
+              Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationScreen()));
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: EdgeInsets.fromLTRB(
