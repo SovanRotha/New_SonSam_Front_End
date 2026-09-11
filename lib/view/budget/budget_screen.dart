@@ -5,6 +5,7 @@ import 'package:sansom/core/constant/app_color.dart';
 import 'package:sansom/provider/budget/budget_provider.dart';
 import 'package:sansom/view/budget/budget_detail_screen.dart';
 import 'package:sansom/view/budget/edit_budget.dart';
+import 'package:sansom/widget/budget/additional.dart';
 import 'package:sansom/widget/budget/create_budget.dart';
 
 class BudgetScreen extends StatefulWidget {
@@ -101,6 +102,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 ),
                 child: const Text('Try Again', style: TextStyle(color: AppColors.textLight)),
               ),
+              
             ],
           ),
         ),
@@ -120,14 +122,103 @@ class _BudgetScreenState extends State<BudgetScreen> {
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: budgetProvider.budgets.length,
+        itemCount: budgetProvider.budgets.length + 1,
         itemBuilder: (context, index) {
+          if (index == budgetProvider.budgets.length) {
+            return _buildAdditionalFeaturesCard(context);
+          }
+
           final budget = budgetProvider.budgets[index];
           return _buildBudgetCard(context, budget);
         },
       ),
     );
   }
+
+ Widget _buildAdditionalFeaturesCard(BuildContext context) {
+   return Container(
+     margin: const EdgeInsets.only(top: 4, bottom: 16),
+     decoration: BoxDecoration(
+       // Use a soft primary tint to make it stand out as a special feature section
+       color: AppColors.primary.withOpacity(0.05),
+       borderRadius: BorderRadius.circular(16),
+       border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+     ),
+     child: Material(
+       color: Colors.transparent,
+       borderRadius: BorderRadius.circular(16),
+       child: InkWell(
+         borderRadius: BorderRadius.circular(16),
+         onTap: () {
+           Navigator.push(
+             context,
+             MaterialPageRoute(builder: (context) => const Additional()),
+           );
+         },
+         child: Padding(
+           padding: const EdgeInsets.all(16),
+           child: Row(
+             children: [
+               // Leading Icon with a solid primary background container
+               Container(
+                 padding: const EdgeInsets.all(12),
+                 decoration: BoxDecoration(
+                   color: AppColors.primary.withOpacity(0.12),
+                   borderRadius: BorderRadius.circular(12),
+                 ),
+                 child: const Icon(
+                   Icons.receipt_long_rounded,
+                   color: AppColors.primary,
+                   size: 24,
+                 ),
+               ),
+               const SizedBox(width: 14),
+               // Title & Subtitle
+               Expanded(
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     const Text(
+                       'Bills & Subscriptions',
+                       style: TextStyle(
+                         color: AppColors.textPrimary,
+                         fontWeight: FontWeight.bold,
+                         fontSize: 16,
+                       ),
+                     ),
+                     const SizedBox(height: 3),
+                     const Text(
+                       'Manage recurring transactions & reminders',
+                       style: TextStyle(
+                         color: AppColors.textSecondary,
+                         fontSize: 12,
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
+               const SizedBox(width: 8),
+               // Trailing Arrow with a circular background
+               Container(
+                 padding: const EdgeInsets.all(8),
+                 decoration: BoxDecoration(
+                   color: AppColors.surface,
+                   shape: BoxShape.circle,
+                   border: Border.all(color: AppColors.border),
+                 ),
+                 child: const Icon(
+                   Icons.arrow_forward_ios_rounded,
+                   size: 12,
+                   color: AppColors.primary,
+                 ),
+               ),
+             ],
+           ),
+         ),
+       ),
+     ),
+   );
+ }
 
   Widget _buildEmptyState() {
     return Center(
@@ -189,6 +280,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 ),
               ),
             ),
+            
           ],
         ),
       ),
@@ -407,10 +499,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           size: 12,
                           color: AppColors.primary,
                         ),
+
+                        
                       ],
                     ),
                   ],
                 ),
+                
               ],
             ),
           ),

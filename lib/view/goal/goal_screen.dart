@@ -147,7 +147,7 @@ class _GoalScreenState extends State<GoalScreen> {
 
     // Goals List
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
       itemCount: goalProvider.goals.length,
       itemBuilder: (context, index) {
         final goal = goalProvider.goals[index];
@@ -158,16 +158,18 @@ class _GoalScreenState extends State<GoalScreen> {
         final double progress = target > 0 ? (current / target).clamp(0.0, 1.0) : 0.0;
         final int percent = (progress * 100).toInt();
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+        return GestureDetector(
+          onTap: () => _openContributions(context, goal),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header row: Title & Menu
@@ -332,23 +334,7 @@ class _GoalScreenState extends State<GoalScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return ContributionScreen(
-                              goalId: goal.id,
-                              goalName: goal.name,
-                            );
-                          },
-                        ),
-                      );
-
-                      if (!mounted) return;
-
-                      await context.read<GoalProvider>().refreshGoal(goal.id);
-                    },
+                    onPressed: () => _openContributions(context, goal),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.border),
                       shape: RoundedRectangleBorder(
@@ -369,9 +355,26 @@ class _GoalScreenState extends State<GoalScreen> {
               ],
             ),
           ),
+          ),
         );
       },
     );
+  }
+
+  Future<void> _openContributions(BuildContext context, dynamic goal) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ContributionScreen(
+          goalId: goal.id,
+          goalName: goal.name,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    await context.read<GoalProvider>().refreshGoal(goal.id);
   }
 
   Widget _buildStatusBadge(String status) {
