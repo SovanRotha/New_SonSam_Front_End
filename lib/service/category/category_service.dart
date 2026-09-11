@@ -36,8 +36,8 @@ class CategoryService {
       body: jsonEncode(categoryData),
     );
 
-    print('STATUS: ${response.statusCode}');
-    print('BODY: ${response.body}');
+    // print('STATUS: ${response.statusCode}');
+    // print('BODY: ${response.body}');
 
     if (response.statusCode == 201) {
       return jsonDecode(response.body);
@@ -71,8 +71,8 @@ class CategoryService {
       headers: await getHeaders(),
     );
 
-    print('DELETE STATUS: ${response.statusCode}');
-    print('DELETE BODY: ${response.body}');
+    // print('DELETE STATUS: ${response.statusCode}');
+    // print('DELETE BODY: ${response.body}');
 
     if (response.statusCode != 204) {
       throw Exception(

@@ -31,7 +31,7 @@ class AuthProvider extends ChangeNotifier {
       await TokenStorage.saveToken(response['token']);
       await notificationService.syncToken();
 
-      log('${response['token']}');
+      // log('${response['token']}');
 
       isLoading = false;
       notifyListeners();

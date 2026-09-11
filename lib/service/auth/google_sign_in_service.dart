@@ -14,23 +14,23 @@ class GoogleSignInService {
 
   Future<String?> authenticate() async {
     try {
-      print('1. Initializing Google Sign-In');
+      // print('1. Initializing Google Sign-In');
 
       await ensureInitialized();
 
-      print('2. Google Sign-In initialized');
+      // print('2. Google Sign-In initialized');
 
       final GoogleSignInAccount account = await signIn.authenticate();
 
-      print('3. Google account selected');
+      // print('3. Google account selected');
 
       final GoogleSignInAuthentication authentication = account.authentication;
 
-      print('4. ID token: ${authentication.idToken}');
+      // print('4. ID token: ${authentication.idToken}');
 
       return authentication.idToken;
     } catch (e) {
-      print('GOOGLE SIGN-IN ERROR: $e');
+      // print('GOOGLE SIGN-IN ERROR: $e');
       rethrow;
     }
   }

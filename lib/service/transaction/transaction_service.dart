@@ -21,7 +21,7 @@ class TransactionService {
     final Uri url = Uri.parse('${ApiUrl.baseUrl}/transactions');
     final Map<String, String> headers = _getHeaders(token);
 
-    print('--> GET $url');
+    // print('--> GET $url');
 
     try {
       final response = await http.get(
@@ -29,8 +29,8 @@ class TransactionService {
         headers: headers,
       );
 
-      print('<-- Status Code: ${response.statusCode}');
-      print('<-- Response Body: ${response.body}');
+      // print('<-- Status Code: ${response.statusCode}');
+      // print('<-- Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final dynamic jsonResponse = jsonDecode(response.body);
@@ -65,7 +65,7 @@ class TransactionService {
             'Failed to load transactions (${response.statusCode})',
       );
     } catch (e) {
-      print(' Error in fetchTransactions: $e');
+      // print(' Error in fetchTransactions: $e');
       rethrow;
     }
   }
@@ -79,9 +79,9 @@ class TransactionService {
     final Map<String, String> headers = _getHeaders(token);
     final String body = jsonEncode(transaction.toJson());
 
-    print('--> TOKEN: $token');
-    print('--> POST $url');
-    print('--> Request Body: $body');
+    // print('--> TOKEN: $token');
+    // print('--> POST $url');
+    // print('--> Request Body: $body');
 
     try {
       final response = await http.post(
@@ -90,8 +90,8 @@ class TransactionService {
         body: body,
       );
 
-      print('<-- Status Code: ${response.statusCode}');
-      print('<-- Response Body: ${response.body}');
+      // print('<-- Status Code: ${response.statusCode}');
+      // print('<-- Response Body: ${response.body}');
 
       if (response.statusCode == 200 ||
           response.statusCode == 201) {
@@ -109,7 +109,7 @@ class TransactionService {
             'Failed to create transaction (${response.statusCode})',
       );
     } catch (e) {
-      print(' Error in createTransaction: $e');
+      // print(' Error in createTransaction: $e');
       rethrow;
     }
   }

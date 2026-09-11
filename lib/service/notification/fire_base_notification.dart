@@ -71,7 +71,7 @@ class FirebaseNotificationService {
   }
 
   // Change this to your Laravel API URL
-  
+  // static const String laravelApiUrl = 'https://your-laravel-api.com';
 
   Future<void> syncToken() async {
     try {
@@ -82,20 +82,20 @@ class FirebaseNotificationService {
         sound: true,
       );
 
-      print(
-        'Notification permission: ${settings.authorizationStatus}',
-      );
+      // print(
+      //   'Notification permission: ${settings.authorizationStatus}',
+      // );
 
       // Get FCM token
       final String? fcmToken = await messaging.getToken();
 
-      print('================================');
-      print('FCM TOKEN:');
-      print(fcmToken);
-      print('================================');
+      // print('================================');
+      // print('FCM TOKEN:');
+      // print(fcmToken);
+      // print('================================');
 
       if (fcmToken == null) {
-        print('FCM token is null');
+        // print('FCM token is null');
         return;
       }
 
@@ -103,7 +103,7 @@ class FirebaseNotificationService {
       final authToken = await TokenStorage.getToken();
 
       if (authToken == null) {
-        print('Auth token is null');
+        // print('Auth token is null');
         return;
       }
 
@@ -120,15 +120,15 @@ class FirebaseNotificationService {
         }),
       );
 
-      print('FCM sync status: ${response.statusCode}');
-      print('FCM sync response: ${response.body}');
+      // print('FCM sync status: ${response.statusCode}');
+      // print('FCM sync response: ${response.body}');
 
       // Listen for future token changes
       messaging.onTokenRefresh.listen((newToken) async {
         await syncTokenWithLaravel(newToken);
       });
     } catch (e) {
-      print('FCM SYNC ERROR: $e');
+      // print('FCM SYNC ERROR: $e');
     }
   }
 
@@ -152,10 +152,10 @@ class FirebaseNotificationService {
         }),
       );
 
-      print('FCM token refresh status: ${response.statusCode}');
-      print('FCM token refresh response: ${response.body}');
+      // print('FCM token refresh status: ${response.statusCode}');
+      // print('FCM token refresh response: ${response.body}');
     } catch (e) {
-      print('FCM TOKEN REFRESH ERROR: $e');
+      // print('FCM TOKEN REFRESH ERROR: $e');
     }
   }
 }
