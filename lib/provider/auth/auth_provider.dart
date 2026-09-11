@@ -3,10 +3,14 @@ import 'dart:developer';
 import 'package:flutter/widgets.dart';
 import 'package:sansom/models/auth/auth_model.dart';
 import 'package:sansom/service/auth/auth_service.dart';
+import 'package:sansom/service/auth/google_auth_service.dart';
+import 'package:sansom/service/auth/google_sign_in_service.dart';
 import 'package:sansom/service/token/token_storage.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService authService = AuthService();
+  final GoogleSignInService googleSignInService = GoogleSignInService();
+  final GoogleAuthService googleAuthService = GoogleAuthService();
 
   bool isLoading = false;
   String? errorMessage;
@@ -90,5 +94,45 @@ class AuthProvider extends ChangeNotifier {
 
     isLoading = false;
     notifyListeners();
+  }
+
+  Future<bool> registerWithGoogle() async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await googleAuthService.registerWithGoogle();
+      user = response['user'];
+      await TokenStorage.saveToken(response['token']);
+      isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      errorMessage = '$e';
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> loginWithGoogle() async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await googleAuthService.loginWithGoogle();
+      user = response['user'];
+      await TokenStorage.saveToken(response['token']);
+      isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      errorMessage = '$e';
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:sansom/core/constant/api_url.dart';
 import 'package:sansom/models/auth/auth_model.dart';
@@ -41,23 +40,26 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> logout() async {
-    final token = await TokenStorage.getToken();
+    try {
+      final token = await TokenStorage.getToken();
 
-    final response = await http.post(
-      Uri.parse('${ApiUrl.baseUrl}/logout'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+      final response = await http.post(
+        Uri.parse('${ApiUrl.baseUrl}/logout'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      await TokenStorage.deleteToken();
+      if (response.statusCode == 200) {
+        await TokenStorage.deleteToken();
+        return jsonDecode(response.body);
+      }
 
-      return jsonDecode(response.body);
+      throw Exception('Logout failed');
+    } catch (error) {
+      throw Exception('Logout failed: $error');
     }
-
-    throw Exception('Logout failed');
   }
 }

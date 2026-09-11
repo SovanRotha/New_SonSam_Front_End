@@ -5,6 +5,7 @@ import 'package:sansom/core/constant/app_color.dart';
 import 'package:sansom/provider/auth/auth_provider.dart';
 import 'package:sansom/view/auth/register.dart';
 import 'package:sansom/widget/custom_bottom_nav.dart';
+import 'package:sansom/widget/google_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,7 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   bool _obscurePassword = true;
-  // bool _rememberMe = false; // Commented out for now
   bool _isLoading = false;
 
   @override
@@ -32,12 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     final provider = context.read<AuthProvider>();
 
-    final success =
-        await provider.login(
-          emailController.text.trim(),
-          passwordController.text,
-        ) ??
-        false;
+    final success = await provider.login(
+      emailController.text.trim(),
+      passwordController.text,
+    );
 
     setState(() => _isLoading = false);
 
@@ -59,6 +57,41 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> loginWithGoogle() async {
+    final provider = context.read<AuthProvider>();
+    setState(() => _isLoading = true);
+
+    try {
+      final success = await provider.loginWithGoogle();
+      if (!mounted) return;
+
+      if (success) {
+        log('Successfully logged in with Google');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CustomBottomNav()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.errorMessage ?? 'Google login failed'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google login failed: $error'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
               horizontal: 24.0,
-              vertical: 16.0,
+              vertical: 24.0,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -80,6 +113,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Enter your details to access your account.",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -101,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Header Text
+                      // Header Text inside Card
                       const Text(
                         "Welcome back",
                         textAlign: TextAlign.center,
@@ -111,21 +152,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Enter your details to access your account.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                          height: 1.3,
-                        ),
-                      ),
                       const SizedBox(height: 24),
 
                       // Email Field Label
                       const Text(
-                        "Email address",
+                        "Email Address",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -133,43 +164,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-
-                      // Email Input Field
                       TextField(
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
+                        decoration: _buildInputDecoration(
                           hintText: "you@example.com",
-                          hintStyle: const TextStyle(color: AppColors.disabled),
-                          prefixIcon: const Icon(
-                            Icons.email_outlined,
-                            color: AppColors.textSecondary,
-                          ),
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 14.0,
-                            horizontal: 12.0,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppColors.border,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppColors.border,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
-                              width: 1.5,
-                            ),
-                          ),
+                          prefixIcon: Icons.email_outlined,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -184,18 +184,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-
-                      // Password Input Field
                       TextField(
                         controller: passwordController,
                         obscureText: _obscurePassword,
-                        decoration: InputDecoration(
+                        decoration: _buildInputDecoration(
                           hintText: "••••••••",
-                          hintStyle: const TextStyle(color: AppColors.disabled),
-                          prefixIcon: const Icon(
-                            Icons.lock_outline_rounded,
-                            color: AppColors.textSecondary,
-                          ),
+                          prefixIcon: Icons.lock_outline_rounded,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
@@ -209,75 +203,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                             },
                           ),
-                          filled: true,
-                          fillColor: AppColors.surface,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 14.0,
-                            horizontal: 12.0,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppColors.border,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppColors.border,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppColors.primary,
-                              width: 1.5,
-                            ),
-                          ),
                         ),
                       ),
                       const SizedBox(height: 12),
 
-                      // Remember Me & Forgot Password Row
+                      // Forgot Password Row
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Row(
-                            children: [
-                              /*
-                              // Checkbox temporarily commented out
-                              SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: Checkbox(
-                                  value: _rememberMe,
-                                  activeColor: AppColors.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  side: const BorderSide(color: AppColors.border),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _rememberMe = value ?? false;
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              */
-                              const Text(
-                                "Remember me",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
                           GestureDetector(
                             onTap: () {
                               // Forgot Password Action
-                              //===========================//
                             },
                             child: const Text(
                               "Forgot password?",
@@ -323,35 +259,89 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
 
-                      // Create Account Button
+                      // Divider with "OR"
+                      Row(
+                        children: const [
+                          Expanded(child: Divider(color: AppColors.border)),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              "OR",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Expanded(child: Divider(color: AppColors.border)),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Login with Google Button
                       SizedBox(
                         height: 48,
                         child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RegisterScreen(),
-                              ),
-                            );
-                          },
+                          onPressed: _isLoading ? null : loginWithGoogle,
                           style: OutlinedButton.styleFrom(
+                            backgroundColor: AppColors.surface,
                             side: const BorderSide(color: AppColors.border),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            "Create account",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const GoogleLogo(),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Login with Google',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Don't have an account Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Don't have an account? ",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterScreen(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Create account",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -360,6 +350,41 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper decoration method to keep input field styles consistent
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    required IconData prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(color: AppColors.disabled),
+      prefixIcon: Icon(
+        prefixIcon,
+        color: AppColors.textSecondary,
+      ),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 14.0,
+        horizontal: 12.0,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
     );
   }

@@ -1,138 +1,10 @@
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'package:sansom/provider/auth/auth_provider.dart';
-// import 'package:sansom/widget/custom_bottom_nav.dart';
-
-// class RegisterScreen extends StatefulWidget {
-//   const RegisterScreen({super.key});
-
-//   @override
-//   State<RegisterScreen> createState() => _RegisterScreenState();
-// }
-
-// class _RegisterScreenState extends State<RegisterScreen> {
-//   final TextEditingController nameController = TextEditingController();
-//   final TextEditingController emailController = TextEditingController();
-//   final TextEditingController passwordController = TextEditingController();
-//   final TextEditingController phoneController = TextEditingController();
-
-//   String? selectedCurrency;
-
-//   Future<void> register() async {
-//     final provider = context.read<AuthProvider>();
-
-//     if (selectedCurrency == null) {
-//       ScaffoldMessenger.of(
-//         context,
-//       ).showSnackBar(const SnackBar(content: Text('Please choose a currency')));
-//       return;
-//     }
-
-//     final success = await provider.register(
-//       nameController.text.trim(),
-//       emailController.text.trim(),
-//       passwordController.text,
-//       phoneController.text.trim(),
-//       selectedCurrency!,
-//     );
-
-//     if (success) {
-//       Navigator.push(
-//         context,
-//         MaterialPageRoute(builder: (context) => CustomBottomNav()),
-//       );
-//     } else {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text(provider.errorMessage ?? 'Registration failed')),
-//       );
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text("Register")),
-
-//       body: Column(
-//         children: [
-//           TextFormField(
-//             controller: nameController,
-//             decoration: InputDecoration(
-//               border: OutlineInputBorder(),
-//               hintText: "Enter Your Name",
-//             ),
-//           ),
-
-//           SizedBox(height: 20),
-
-//           TextFormField(
-//             controller: emailController,
-//             decoration: InputDecoration(
-//               border: OutlineInputBorder(),
-//               hintText: "Enter Your Email",
-//             ),
-//           ),
-
-//           SizedBox(height: 20),
-
-//           TextFormField(
-//             controller: passwordController,
-//             decoration: InputDecoration(
-//               border: OutlineInputBorder(),
-//               hintText: "Enter Your Password",
-//             ),
-//           ),
-
-//           SizedBox(height: 20),
-
-//           TextFormField(
-//             controller: phoneController,
-//             decoration: InputDecoration(
-//               border: OutlineInputBorder(),
-//               hintText: "Enter Your Phone Number",
-//             ),
-//           ),
-
-//           SizedBox(height: 20),
-
-//           DropdownButtonFormField<String>(
-//             decoration: const InputDecoration(
-//               border: OutlineInputBorder(),
-//               labelText: 'Currency',
-//             ),
-//             hint: const Text('Choose Currency'),
-//             items: const [
-//               DropdownMenuItem(value: 'USD', child: Text('USD - US Dollar')),
-//               // DropdownMenuItem(
-//               //   value: 'KHR',
-//               //   child: Text('KHR - Cambodian Riel'),
-//               // ),
-//             ],
-//             onChanged: (value) {
-//               setState(() {
-//                 selectedCurrency = value;
-//               });
-//             },
-//           ),
-
-//           SizedBox(height: 20),
-
-//           ElevatedButton(
-//             onPressed: register,
-//             child: Text("Register")),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sansom/core/constant/app_color.dart';
 import 'package:sansom/provider/auth/auth_provider.dart';
 import 'package:sansom/widget/custom_bottom_nav.dart';
+import 'package:sansom/widget/google_logo.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -202,6 +74,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  Future<void> registerWithGoogle() async {
+    final authProvider = context.read<AuthProvider>();
+    setState(() => _isLoading = true);
+
+    try {
+      final success = await authProvider.registerWithGoogle();
+      if (!mounted) return;
+
+      if (success) {
+        log('Successfully registered with Google');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CustomBottomNav()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.errorMessage ?? 'Google registration failed'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google registration failed: $error'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -209,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -342,42 +249,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 16),
 
                       // Currency Dropdown Label
-                      const Text(
-                        "Currency",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedCurrency,
-                        hint: const Text(
-                          "Choose Currency",
-                          style: TextStyle(color: AppColors.disabled),
-                        ),
-                        decoration: _buildInputDecoration(
-                          hintText: "",
-                          prefixIcon: Icons.attach_money_rounded,
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'USD',
-                            child: Text('USD - US Dollar'),
-                          ),
-                          // DropdownMenuItem(
-                          //   value: 'KHR',
-                          //   child: Text('KHR - Cambodian Riel'),
-                          // ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCurrency = value;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 24),
+                      // const Text(
+                      //   "Currency",
+                      //   style: TextStyle(
+                      //     fontSize: 14,
+                      //     fontWeight: FontWeight.w600,
+                      //     color: AppColors.textPrimary,
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 8),
+                      // DropdownButtonFormField<String>(
+                      //   value: selectedCurrency,
+                      //   hint: const Text(
+                      //     "Choose Currency",
+                      //     style: TextStyle(color: AppColors.disabled),
+                      //   ),
+                      //   decoration: _buildInputDecoration(
+                      //     hintText: "",
+                      //     prefixIcon: Icons.attach_money_rounded,
+                      //   ),
+                      //   items: const [
+                      //     DropdownMenuItem(
+                      //       value: 'USD',
+                      //       child: Text('USD - US Dollar'),
+                      //     ),
+                      //   ],
+                      //   onChanged: (value) {
+                      //     setState(() {
+                      //       selectedCurrency = value;
+                      //     });
+                      //   },
+                      // ),
+                      // const SizedBox(height: 24),
 
                       // Register Button
                       SizedBox(
@@ -412,6 +315,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 16),
 
+                      // Divider with "OR"
+                      Row(
+                        children: const [
+                          Expanded(child: Divider(color: AppColors.border)),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              "OR",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Expanded(child: Divider(color: AppColors.border)),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Register with Google Button with Logo
+                      SizedBox(
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: _isLoading ? null : registerWithGoogle,
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: AppColors.surface,
+                            side: const BorderSide(color: AppColors.border),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const GoogleLogo(),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Register with Google',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
                       // Already have an account Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -441,7 +395,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
                 // Terms and Privacy Text
                 RichText(
