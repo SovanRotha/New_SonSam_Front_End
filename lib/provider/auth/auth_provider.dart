@@ -5,12 +5,15 @@ import 'package:sansom/models/auth/auth_model.dart';
 import 'package:sansom/service/auth/auth_service.dart';
 import 'package:sansom/service/auth/google_auth_service.dart';
 import 'package:sansom/service/auth/google_sign_in_service.dart';
+import 'package:sansom/service/notification/fire_base_notification.dart';
 import 'package:sansom/service/token/token_storage.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService authService = AuthService();
   final GoogleSignInService googleSignInService = GoogleSignInService();
   final GoogleAuthService googleAuthService = GoogleAuthService();
+  final FirebaseNotificationService notificationService =
+      FirebaseNotificationService();
 
   bool isLoading = false;
   String? errorMessage;
@@ -26,6 +29,7 @@ class AuthProvider extends ChangeNotifier {
 
       user = response['user'];
       await TokenStorage.saveToken(response['token']);
+      await notificationService.syncToken();
 
       log('${response['token']}');
 
@@ -105,6 +109,7 @@ class AuthProvider extends ChangeNotifier {
       final response = await googleAuthService.registerWithGoogle();
       user = response['user'];
       await TokenStorage.saveToken(response['token']);
+      await notificationService.syncToken();
       isLoading = false;
       notifyListeners();
       return true;
@@ -125,6 +130,7 @@ class AuthProvider extends ChangeNotifier {
       final response = await googleAuthService.loginWithGoogle();
       user = response['user'];
       await TokenStorage.saveToken(response['token']);
+      await notificationService.syncToken();
       isLoading = false;
       notifyListeners();
       return true;

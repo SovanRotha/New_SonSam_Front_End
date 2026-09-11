@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "434716308337",
+    "project_id": "sansom-5bce9",
+    "storage_bucket": "sansom-5bce9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434716308337:android:30539f05f281d74b8e3cd0",
+        "android_client_info": {
+          "package_name": "com.example.sansom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoBbmOl0Lb_0ZShFr_wPXq7-xHwAy2CJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

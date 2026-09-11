@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sansom/provider/account/account_provider.dart';
@@ -13,11 +14,24 @@ import 'package:sansom/provider/subscription/subscription_provider.dart';
 import 'package:sansom/provider/transaction/transaction_provider.dart';
 import 'package:sansom/provider/contribution/contribution_provider.dart';
 import 'package:sansom/provider/goal/goal_provider.dart';
-import 'package:sansom/provider/subscription/subscription_provider.dart';
 import 'package:sansom/provider/user/user_provider.dart';
+import 'package:sansom/service/notification/fire_base_notification.dart';
 import 'package:sansom/view/auth/login.dart';
+import 'package:sansom/firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Initialize Firebase Cloud Messaging
+  final notificationService = FirebaseNotificationService();
+  await notificationService.initialize();
+  await notificationService.syncToken();
+
   runApp(
     MultiProvider(
       providers: [
