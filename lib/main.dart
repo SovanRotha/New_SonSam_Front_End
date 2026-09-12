@@ -13,7 +13,6 @@ import 'package:sansom/provider/subscription/subscription_provider.dart';
 import 'package:sansom/provider/transaction/transaction_provider.dart';
 import 'package:sansom/provider/contribution/contribution_provider.dart';
 import 'package:sansom/provider/goal/goal_provider.dart';
-import 'package:sansom/provider/subscription/subscription_provider.dart';
 import 'package:sansom/provider/user/user_provider.dart';
 import 'package:sansom/view/auth/login.dart';
 
