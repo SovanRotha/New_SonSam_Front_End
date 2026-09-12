@@ -200,8 +200,8 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => CreateBudgetCategories(
@@ -209,6 +209,12 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                         ),
                       ),
                     );
+
+                    if (context.mounted) {
+                      await context
+                          .read<BudgetCategoryProvider>()
+                          .getBudgetCategory(widget.budget.id);
+                    }
                   },
                   icon: const Icon(Icons.add, size: 18, color: AppColors.textLight),
                   label: const Text(

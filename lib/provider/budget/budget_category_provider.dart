@@ -43,7 +43,7 @@ class BudgetCategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createBudgetCategory(
+  Future<bool> createBudgetCategory(
     Map<String, dynamic> budgetCategoryData,
   ) async {
     isLoading = true;
@@ -60,11 +60,15 @@ class BudgetCategoryProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
-      // Handle error
+      errorMessage = e.toString();
       print('Error creating budget category: $e');
+      isLoading = false;
+      notifyListeners();
+      return false;
     }
     isLoading = false;
     notifyListeners();
+    return true;
   }
 
   Future<bool> updateBudgetCategory(

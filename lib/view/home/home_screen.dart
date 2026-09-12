@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sansom/core/constant/app_color.dart';
+import 'package:sansom/provider/transaction/transaction_provider.dart';
 import 'package:sansom/provider/user/user_provider.dart';
+import 'package:sansom/service/token/token_storage.dart';
 import 'package:sansom/view/ai/ai_screen.dart';
+import 'package:sansom/view/goal/goal_screen.dart';
 import 'package:sansom/view/history/history_screen.dart';
-// TODO: Import your transaction provider and model here
-// import 'package:sansom/provider/transaction/transaction_provider.dart';
 import 'package:sansom/widget/Account/Account_screen.dart';
+import 'package:sansom/widget/budget/additional.dart';
 import 'package:sansom/widget/category/category_screen.dart';
 import 'package:sansom/widget/notification/notification.dart';
+import 'package:sansom/widget/transaction/chart_transaction.dart';
+import 'package:sansom/widget/transaction/summary_transaction.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +35,30 @@ class _HomeScreenState extends State<HomeScreen> {
       'icon': Icons.category_outlined,
       'screen': const CategoryScreen(),
     },
+    {
+      'title': 'Bill',
+      'subtitle': 'Manage your bills and recurring payments',
+      'icon': Icons.receipt_long_rounded,
+      'screen': const Additional(initialIndex: 0),
+    },
+    {
+      'title': 'Subscription',
+      'subtitle': 'Manage your subscriptions and recurring payments',
+      'icon': Icons.subscriptions_rounded,
+      'screen': const Additional(initialIndex: 1),
+    },
+    {
+      'title': 'Recurring Transaction',
+      'subtitle': 'Manage your recurring transactions',
+      'icon': Icons.repeat_rounded,
+      'screen': const Additional(initialIndex: 2),
+    },
+    {
+      'title': 'Saving Goal',
+      'subtitle': 'Set and track your saving goals',
+      'icon': Icons.savings_rounded,
+      'screen': const GoalScreen(),
+    },
   ];
 
   @override
@@ -42,15 +70,24 @@ class _HomeScreenState extends State<HomeScreen> {
       if (userProvider.user == null) {
         userProvider.getUser();
       }
-      // TODO: Fetch your recent transactions here
-      // context.read<TransactionProvider>().getRecentTransactions();
+      _loadTransactions();
     });
+  }
+
+  Future _loadTransactions() async {
+    final token = await TokenStorage.getToken();
+    if (!mounted || token == null || token.isEmpty) return;
+
+    await context.read<TransactionProvider>().loadTransactions(token);
   }
 
   @override
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
-    // final transactionProvider = context.watch<TransactionProvider>(); // Uncomment when connected
+    final transactionProvider = context.watch<TransactionProvider>();
+    final recentTransactions = transactionProvider.transactions.reversed
+        .take(5)
+        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -68,18 +105,23 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(8),
           child: CircleAvatar(
             backgroundColor: AppColors.primary,
-            child: const Icon(Icons.person, color: AppColors.textLight, size: 20),
+            child: const Icon(
+              Icons.person,
+              color: AppColors.textLight,
+              size: 20,
+            ),
           ),
         ),
         backgroundColor: AppColors.surface,
         elevation: 0,
-
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications, color: AppColors.primary),
             onPressed: () {
-              // Handle notification icon press
-              Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationScreen()),
+              );
             },
           ),
         ],
@@ -117,6 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+
+
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.all(8),
@@ -138,6 +182,14 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildAIChatCard(context),
           const SizedBox(height: 24),
 
+          const SummaryTransaction(),
+
+          const SizedBox(height: 20,),
+
+          const TransactionChart(),
+
+          const SizedBox(height: 20,),
+
           // 2. Quick Management Section Header
           const Text(
             'Quick Management',
@@ -149,10 +201,26 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Management Menu Items
-          ...menuItems.map((item) => _buildMenuItemCard(context, item)),
+          // Management Menu Grid (Bank Style)
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            itemCount: menuItems.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 8,
+              mainAxisExtent: 90,
+            ),
+            itemBuilder: (context, index) {
+              final item = menuItems[index];
+              return _buildMenuGridCard(context, item);
+            },
+          ),
 
-          const SizedBox(height: 24),
+          // Proper controlled space between grid and next section
+          const SizedBox(height: 12),
 
           // 3. Recent Transactions Section Header
           Row(
@@ -182,26 +250,64 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          // const SizedBox(height: 8),
 
-          // Recent Transactions List
-          Column(
-            children: List.generate(3, (index) {
-              return _buildTransactionCard(
-                title: index == 0
-                    ? 'Grocery Store'
-                    : index == 1
-                        ? 'Salary Deposit'
-                        : 'Coffee Shop',
-                category: index == 1 ? 'Income' : 'Food & Dining',
-                amount: index == 1 ? '+\$1,200.00' : '-\$24.50',
-                isIncome: index == 1,
-                date: 'Today, 2:45 PM',
-              );
-            }),
-          ),
+          _buildRecentTransactions(transactionProvider, recentTransactions),
         ],
       ),
+    );
+  }
+
+  Widget _buildRecentTransactions(
+    TransactionProvider provider,
+    List transactions,
+  ) {
+    if (provider.isLoading && transactions.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
+    if (provider.errorMessage != null && transactions.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Text(
+          provider.errorMessage!,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    if (transactions.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Text(
+          'No transactions yet.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    return Column(
+      children: transactions.map((transaction) {
+        final isIncome = transaction.type.trim().toLowerCase() == 'income';
+        final title = transaction.description?.isNotEmpty == true
+            ? transaction.description!
+            : transaction.category?.name ?? 'Transaction';
+        final category = transaction.category?.name ?? transaction.type;
+        final amount =
+          '${isIncome ? '+' : '-'}\$${transaction.amount.abs().toStringAsFixed(2)}';
+        return _buildTransactionCard(
+          title: title,
+          category: category,
+          amount: amount,
+          isIncome: isIncome,
+          date: transaction.transactionDate.split(' ').first,
+        );
+      }).toList(),
     );
   }
 
@@ -209,10 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withOpacity(0.8),
-          ],
+          colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -268,10 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(height: 4),
                       Text(
                         'Ask questions about your spending habits & get insights',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
                   ),
@@ -289,56 +389,53 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMenuItemCard(BuildContext context, Map<String, dynamic> item) {
+  Widget _buildMenuGridCard(BuildContext context, Map item) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            item['icon'],
-            color: AppColors.primary,
-            size: 22,
-          ),
-        ),
-        title: Text(
-          item['title'],
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          item['subtitle'],
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          ),
-        ),
-        trailing: const Icon(
-          Icons.arrow_forward_ios_rounded,
-          size: 14,
-          color: AppColors.textSecondary,
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => item['screen'],
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => item['screen']),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(item['icon'], color: AppColors.primary, size: 24),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  item['title'],
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -391,7 +488,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$category • $date',
+                  '\(category •\)date',
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 11,

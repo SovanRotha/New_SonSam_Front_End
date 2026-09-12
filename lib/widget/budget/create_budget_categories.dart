@@ -329,11 +329,22 @@ class _CreateBudgetCategoriesState
                           'alert_percentage': alertPercentage,
                         };
 
-                        await budgetCategoryProvider
+                        final created = await budgetCategoryProvider
                             .createBudgetCategory(data);
 
                         if (context.mounted) {
-                          Navigator.pop(context);
+                          if (created) {
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  budgetCategoryProvider.errorMessage ??
+                                      'Failed to create budget category',
+                                ),
+                              ),
+                            );
+                          }
                         }
                       },
                       style: ElevatedButton.styleFrom(

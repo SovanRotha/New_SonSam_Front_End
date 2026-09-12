@@ -33,6 +33,7 @@ class _CreateTransactionState extends State<CreateTransaction> {
       if (!mounted) return;
 
       context.read<AccountProvider>().getAccounts();
+      context.read<AccountTypeProvider>().getAccountTypes();
       context.read<CategoryProvider>().getCategory();
     });
   }

@@ -63,7 +63,6 @@ class TransactionModel {
   // Convert Dart object back to JSON payload for POST/PUT requests
   Map<String, dynamic> toJson() {
     return {
-      'user_id': userId,
       'account_id': accountId,
       'category_id': categoryId,
       'type': type,

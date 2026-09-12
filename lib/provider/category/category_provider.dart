@@ -21,7 +21,12 @@ class CategoryProvider extends ChangeNotifier {
     try {
       final response = await categoryService.getCategory();
 
-      final List<dynamic> categoryData = response['categories'];
+        final categoryResponse = response['categories'] ?? response['data'] ?? [];
+        final List<dynamic> categoryData = categoryResponse is List
+          ? categoryResponse
+          : categoryResponse is Map<String, dynamic>
+          ? [categoryResponse]
+          : [];
 
       categories = categoryData
           .map((json) => Category.fromJson(json))

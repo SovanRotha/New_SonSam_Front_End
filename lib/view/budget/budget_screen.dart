@@ -121,7 +121,14 @@ class _BudgetScreenState extends State<BudgetScreen> {
         await budgetProvider.getBudget();
       },
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          86 + MediaQuery.of(context).padding.bottom,
+        ),
+        physics: const AlwaysScrollableScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         itemCount: budgetProvider.budgets.length + 1,
         itemBuilder: (context, index) {
           if (index == budgetProvider.budgets.length) {

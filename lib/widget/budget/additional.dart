@@ -5,12 +5,15 @@ import 'package:sansom/view/bill/recurring_screen.dart';
 import 'package:sansom/view/bill/subscribtion_screen.dart';
 
 class Additional extends StatelessWidget {
-  const Additional({super.key});
+  final int initialIndex; // Add this parameter
+  
+  const Additional({super.key, this.initialIndex = 0}); // Default to 0 (Bills)
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
+      initialIndex: initialIndex, // Set the initial tab index here
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(

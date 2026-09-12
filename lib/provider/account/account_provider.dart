@@ -21,7 +21,8 @@ class AccountProvider extends ChangeNotifier {
     try {
       final response = await accountService.getAccount();
 
-      final accountResponse = response['accounts'] ?? response['account'];
+        final accountResponse =
+          response['accounts'] ?? response['account'] ?? response['data'];
       final List<dynamic> accountData = accountResponse is List
           ? accountResponse
           : accountResponse is Map<String, dynamic>

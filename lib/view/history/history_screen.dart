@@ -29,7 +29,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final TransactionProvider transactionProvider =
         context.watch<TransactionProvider>();
-    final transactions = transactionProvider.transactions;
+    final transactions = transactionProvider.transactions.reversed.toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
